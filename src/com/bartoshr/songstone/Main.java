@@ -1,12 +1,13 @@
 package com.bartoshr.songstone;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.app.Activity;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.view.Menu;
 import android.view.View;
 import android.widget.AdapterView;
@@ -18,21 +19,30 @@ import android.widget.AdapterView.OnItemClickListener;
 public class Main extends Activity {
 
 	// storage and display songs
-	ArrayList<HashMap<String, String>> songsList = new ArrayList<HashMap<String, String>>();
+	public static ArrayList<HashMap<String, String>> songsList = new ArrayList<HashMap<String, String>>();
 	ListView listView;
 	
-	// real player
-    MediaPlayer mp = new MediaPlayer();
-    
+	Intent songService;
+	
     // indicates on current played song
     int currentSong = -1;
 	
+    //Store settings after restart
+    private static final String PREFERENCES_NAME = "StongStonePref";
+    private static final String CURRENT_SONG = "CurrentSongPref";
+    private SharedPreferences preferences;
+    
+    
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
 		
-
+		// bring back previous settings
+		preferences = getSharedPreferences(PREFERENCES_NAME, Activity.MODE_PRIVATE);
+		restorePreferences();
+		
+		songService = new Intent(getApplicationContext(), SongService.class);
 		
 		listView = (ListView)findViewById(R.id.listView);
 		
@@ -74,7 +84,7 @@ public class Main extends Activity {
 	        	  	}
 	        	  	else
 	        	  		{
-	        	  		pause();
+	        	  		pause_resume();
 	        	  		}
 	          }
 	        });
@@ -82,34 +92,39 @@ public class Main extends Activity {
 	  
 	   public void playSong(int id)
 	   {
-		   try {
-			mp.reset();
-			mp.setDataSource(songsList.get(id).get("songPath"));
-			mp.prepare();
-	  	  	mp.start();
-	  	  	
-	  	  	currentSong = id;
-		} catch (IllegalArgumentException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (SecurityException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalStateException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		   // for the record
+		   currentSong = id;
+			//SongSerice
+		songService.putExtra("action", 0 /* play*/);
+		songService.putExtra("id", id);
+		getApplicationContext().startService(songService); 
 	   }
 	   
-	   public void pause() 
+	   public void pause_resume() 
 	   {
-	   mp.pause();
-	   currentSong = -1;
+		  // for the record
+			songService.putExtra("action", 1 /* pause*/);
+			getApplicationContext().startService(songService); 
+	   }
+	   
+	   private void savePreferences() {
+		    SharedPreferences.Editor preferencesEditor = preferences.edit();
+		    preferencesEditor.putInt(CURRENT_SONG, currentSong);
+		    preferencesEditor.commit();
+		}
+	   
+	   private void restorePreferences()
+	   {
+		   currentSong = preferences.getInt(CURRENT_SONG, -1);
 	   }
 
+	   
+	   @Override
+	protected void onDestroy() {
+		savePreferences();
+		super.onDestroy();
+	}
+	   
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
