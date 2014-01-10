@@ -6,14 +6,23 @@ import java.util.HashMap;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Point;
+import android.graphics.Typeface;
+import android.util.DisplayMetrics;
+import android.util.Log;
+import android.view.Display;
 import android.view.Menu;
 import android.view.View;
+import android.view.ViewGroup.LayoutParams;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.Toast;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.AdapterView.OnItemClickListener;
 
 public class Main extends Activity {
@@ -21,6 +30,8 @@ public class Main extends Activity {
 	// storage and display songs
 	public static ArrayList<HashMap<String, String>> songsList = new ArrayList<HashMap<String, String>>();
 	ListView listView;
+	
+	TextView songLabel;
 	
 	Intent songService;
 	
@@ -42,7 +53,10 @@ public class Main extends Activity {
 		preferences = getSharedPreferences(PREFERENCES_NAME, Activity.MODE_PRIVATE);
 		restorePreferences();
 		
+
 		songService = new Intent(getApplicationContext(), SongService.class);
+		
+		setLabel(); 
 		
 		listView = (ListView)findViewById(R.id.listView);
 		
@@ -64,13 +78,13 @@ public class Main extends Activity {
 	        
 	        listView.setAdapter(adapter);
 	        
-	        initListView();
+	        setListView();
 		
 	}
 	
 
 	
-	  public void initListView()
+	  public void setListView()
 	   {
 	        // listening to single list item on click
 	        listView.setOnItemClickListener(new OnItemClickListener() {
@@ -79,7 +93,7 @@ public class Main extends Activity {
 	        	  
 	        	  if(currentSong != position)
 	        	  	{
-	        	  Toast.makeText(getApplicationContext(),songsList.get(position).get("songTitle"), Toast.LENGTH_SHORT).show();
+	        		  openPanel();
 	        	  playSong(position);
 	        	  	}
 	        	  	else
@@ -90,8 +104,49 @@ public class Main extends Activity {
 	        });
 	   }
 	  
+	  public void setLabel()
+	  {
+
+			Typeface font = Typeface.createFromAsset(getAssets(), "fonts/ubuntu.ttf");
+			songLabel = (TextView) findViewById(R.id.songLabel);
+			songLabel.setTypeface(font);
+			
+	  }
+	  
+	  // change to 
+	  private int scale(float dp)
+	  {
+		  DisplayMetrics metrics = getApplicationContext().getResources().getDisplayMetrics();
+		  float fpixels = metrics.density * dp;
+		  return  (int) (metrics.density * dp + 0.5f);
+	  }
+	  
+	   private void openPanel()
+	   {
+		   Display display = getWindowManager().getDefaultDisplay();
+		   Point size = new Point();
+		   display.getSize(size);
+		   int screenHeight = size.y;
+		   
+		   RelativeLayout layout = (RelativeLayout) findViewById(R.id.RelativeLayout1);
+		   layout.setVisibility(0);
+
+		   
+		   LayoutParams lp = (LayoutParams) listView.getLayoutParams();
+		  Log.d("S",scale(30)+" - wysokoœæ");
+	       lp.height = screenHeight-scale(150);
+	       listView.setLayoutParams(lp);
+	   }
+	  
+	   
+	   
+	   /* Song control functions*/
+	   
+	   
 	   public void playSong(int id)
 	   {
+		   songLabel.setText(songsList.get(id).get("songTitle"));
+		   
 		   // for the record
 		   currentSong = id;
 			//SongSerice
@@ -106,6 +161,9 @@ public class Main extends Activity {
 			songService.putExtra("action", 1 /* pause*/);
 			getApplicationContext().startService(songService); 
 	   }
+	   
+	   
+	   /* Preferences functions*/
 	   
 	   private void savePreferences() {
 		    SharedPreferences.Editor preferencesEditor = preferences.edit();

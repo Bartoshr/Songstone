@@ -25,12 +25,16 @@ public final class R {
         public static final int gradient_bg_hover=0x7f020001;
         public static final int ic_launcher=0x7f020002;
         public static final int list_selector=0x7f020003;
+        public static final int panel_dark=0x7f020004;
+        public static final int panel_light=0x7f020005;
     }
     public static final class id {
-        public static final int action_settings=0x7f080003;
+        public static final int LinearLayout1=0x7f080001;
+        public static final int RelativeLayout1=0x7f080003;
+        public static final int action_settings=0x7f080005;
         public static final int label=0x7f080000;
-        public static final int listView=0x7f080001;
-        public static final int textView1=0x7f080002;
+        public static final int listView=0x7f080002;
+        public static final int songLabel=0x7f080004;
     }
     public static final class layout {
         public static final int list_item=0x7f030000;
