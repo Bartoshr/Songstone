@@ -3,11 +3,15 @@ package com.bartoshr.songstone;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import android.media.MediaPlayer;
+import android.media.AudioManager;
+import android.media.AudioRecord.OnRecordPositionUpdateListener;
 import android.os.Bundle;
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Point;
 import android.graphics.Typeface;
@@ -17,7 +21,6 @@ import android.view.Display;
 import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
-import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
@@ -35,19 +38,28 @@ public class Main extends Activity {
 	
 	Intent songService;
 	
+	private AudioManager mAudioManager;
+    private ComponentName mRemoteControlResponder;
+	
     // indicates on current played song
-    int currentSong = -1;
+    public static int currentSong = -1;
 	
     //Store settings after restart
     private static final String PREFERENCES_NAME = "StongStonePref";
     private static final String CURRENT_SONG = "CurrentSongPref";
     private SharedPreferences preferences;
     
+ 
+	
+	// class for Headset buttons handling
+	
+    
     
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
+		
 		
 		// bring back previous settings
 		preferences = getSharedPreferences(PREFERENCES_NAME, Activity.MODE_PRIVATE);
@@ -57,35 +69,35 @@ public class Main extends Activity {
 		songService = new Intent(getApplicationContext(), SongService.class);
 		
 		setLabel(); 
+		updateSongs();
+		setListView();
 		
-		listView = (ListView)findViewById(R.id.listView);
-		
-		 ArrayList<HashMap<String, String>> songsListData = new ArrayList<HashMap<String, String>>();
-	
-	        SongsManager plm = new SongsManager();
-	        this.songsList = plm.ListAllSongs(getApplicationContext());
-	 
-	        for (int i = 0; i < songsList.size(); i++) {
-	            HashMap<String, String> song = songsList.get(i);
-	            songsListData.add(song);
-	        }
-	        
-	        
-	        ListAdapter adapter = new SimplerAdapter(this, songsListData,
-	                R.layout.list_item, new String[] { "songTitle" }, new int[] {
-	                        R.id.label });
-	        
-	        
-	        listView.setAdapter(adapter);
-	        
-	        setListView();
-		
+		mAudioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
+        mRemoteControlResponder = new ComponentName(getPackageName(),
+                RemoteControlReceiver.class.getName());
 	}
 	
-
 	
-	  public void setListView()
+	
+	  @Override
+	protected void onResume() {
+		super.onResume();
+		mAudioManager.registerMediaButtonEventReceiver(
+                mRemoteControlResponder);
+	}
+
+	  
+
+	public void setListView()
 	   {
+		  listView = (ListView)findViewById(R.id.listView);
+  
+	        ListAdapter adapter = new SimplerAdapter(this, songsList,
+	                R.layout.list_item, new String[] { "songTitle" }, new int[] {
+	                        R.id.label });
+	        	        
+	        listView.setAdapter(adapter); 
+		  
 	        // listening to single list item on click
 	        listView.setOnItemClickListener(new OnItemClickListener() {
 	          public void onItemClick(AdapterView<?> parent, View view,
@@ -104,13 +116,17 @@ public class Main extends Activity {
 	        });
 	   }
 	  
+	  public void updateSongs()
+	  {
+		  SongsManager plm = new SongsManager();
+	        this.songsList = plm.ListAllSongs(getApplicationContext());
+	  }
+	  
 	  public void setLabel()
 	  {
-
 			Typeface font = Typeface.createFromAsset(getAssets(), "fonts/ubuntu.ttf");
 			songLabel = (TextView) findViewById(R.id.songLabel);
-			songLabel.setTypeface(font);
-			
+			songLabel.setTypeface(font);	
 	  }
 	  
 	  // change to 
@@ -133,7 +149,7 @@ public class Main extends Activity {
 
 		   
 		   LayoutParams lp = (LayoutParams) listView.getLayoutParams();
-		  Log.d("S",scale(30)+" - wysokoœæ");
+		  Log.d("S",scale(30)+" - wysokoÅ›Ä‡");
 	       lp.height = screenHeight-scale(150);
 	       listView.setLayoutParams(lp);
 	   }
@@ -146,7 +162,7 @@ public class Main extends Activity {
 	   public void playSong(int id)
 	   {
 		   songLabel.setText(songsList.get(id).get("songTitle"));
-		   
+		   Log.i("Songstone", "playSong");
 		   // for the record
 		   currentSong = id;
 			//SongSerice
@@ -161,7 +177,7 @@ public class Main extends Activity {
 			songService.putExtra("action", 1 /* pause*/);
 			getApplicationContext().startService(songService); 
 	   }
-	   
+	  
 	   
 	   /* Preferences functions*/
 	   
@@ -181,6 +197,8 @@ public class Main extends Activity {
 	protected void onDestroy() {
 		savePreferences();
 		super.onDestroy();
+		 mAudioManager.unregisterMediaButtonEventReceiver(
+	                mRemoteControlResponder);
 	}
 	   
 	@Override
