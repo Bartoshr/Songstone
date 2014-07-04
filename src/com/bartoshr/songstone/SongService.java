@@ -21,13 +21,14 @@ import android.util.Log;
 public class SongService extends Service {
 
 	static enum action {play,pause}
+	static boolean is_running = false; // indicate if service running
 	
 	// real player
     MediaPlayer mp = new MediaPlayer();
     
     public SongService() {
-		Log.i("Songstone", "Constructor");
-		
+		Log.i("Songstone", "Start SongService");
+		is_running = true;
 	}
     
     @Override
@@ -37,7 +38,7 @@ public class SongService extends Service {
     	action act = action.values()[actionId];
  	
     	switch(act)
-    	{
+    	{ 
     	case play:
         	playSong(intent.getIntExtra("id", 0));
     		break;
@@ -61,7 +62,7 @@ public class SongService extends Service {
 	  	  	
 	  	  	mp.setOnCompletionListener(new OnCompletionListener() {
 				public void onCompletion(MediaPlayer arg0) {
-					nextSong();
+					Main.nextSong(getApplicationContext());
 				}
 			});
 	  	  	
@@ -89,22 +90,12 @@ public class SongService extends Service {
 	                this);
 	        Notification note = builder.setContentIntent(pendingIntent)
 	                .setSmallIcon(R.drawable.ic_launcher).setTicker("Music Playing").setWhen(System.currentTimeMillis())
-	                .setAutoCancel(true).setContentTitle("Songstone")
+	                .setAutoCancel(false).setContentTitle("Songstone")
 	                .setContentText("This text").build();
 	        
 		     startForeground(1337, note);
 		}
 	   
-		private void nextSong() {
-			// Check if last song or not
-			if (++Main.currentSong >= Main.songsList.size()) {
-				Main.currentSong = 0;
-			} else {
-				playSong(Main.currentSong);
-			}
-		}
-
-		
 		
 	   public void switchState() 
 	   {
@@ -120,6 +111,7 @@ public class SongService extends Service {
 	   @Override
 	public void onDestroy() {
 		mp.stop();
+		is_running = false;
 		super.onDestroy();
 	}
 
