@@ -32,15 +32,21 @@ public class Main extends Activity {
 
 	// storage and display songs
 	public static ArrayList<HashMap<String, String>> songsList = new ArrayList<HashMap<String, String>>();
-	ListView listView;
+	public static ListView listView;
 	
+	// Showing current Song and controls
 	public static TextView songLabel;
+	public static RelativeLayout layout;
 	
 	public static Intent songService;
 	
 	private AudioManager mAudioManager;
     private ComponentName mRemoteControlResponder;
 	
+    //Display parameters
+    public static Display display;
+    public static Point displaySize;
+    
     // indicates on current played song
     public static int currentSong = -1; 
 	
@@ -58,6 +64,9 @@ public class Main extends Activity {
 		// bring back previous settings
 		preferences = getSharedPreferences(PREFERENCES_NAME, Activity.MODE_PRIVATE);
 		restorePreferences();
+		
+		//get Display size
+		getDisplay();
 
 		songService = new Intent(getApplicationContext(), SongService.class);
 		
@@ -69,7 +78,6 @@ public class Main extends Activity {
         mRemoteControlResponder = new ComponentName(getPackageName(),
                 RemoteControlReceiver.class.getName());
         
- 
 	}
 	
 	
@@ -104,21 +112,19 @@ public class Main extends Activity {
 	              int position, long id) {
 	      	    Log.i("Songstone","service running = "+SongService.is_running);
 	      	  Log.i("Songstone","currentSong = "+currentSong);
-	        	  if(currentSong != position)
-	        	  	{
-	        		  openPanel();
-	        		  playSong(getApplicationContext(),position);
-	        	  	}
-	        	  	else
-	        	  		{
-	        	  		switchSong(getApplicationContext());
-	        	  		}
+	      	  
+	      	  	Context context = getApplicationContext();
+	      	  
+	        	  powerButton(context, position);
 	          }
 	        });
 	   }
 	
+	
 	  public void setLabel()
 	  {
+		   	layout = (RelativeLayout) findViewById(R.id.RelativeLayout1);
+		  
 			Typeface font = Typeface.createFromAsset(getAssets(), "fonts/ubuntu.ttf");
 			songLabel = (TextView) findViewById(R.id.songLabel);
 			songLabel.setTypeface(font);	
@@ -130,33 +136,35 @@ public class Main extends Activity {
 	        this.songsList = plm.ListAllSongs(getApplicationContext());
 	  }
 	  
-	  // change to 
-	  private int scale(float dp)
+	  // Metrics funtions - get display parameters
+	  
+	  public static int scale(Context context,float dp)
 	  {
-		  DisplayMetrics metrics = getApplicationContext().getResources().getDisplayMetrics();
+		  DisplayMetrics metrics = context.getResources().getDisplayMetrics();
 		  float fpixels = metrics.density * dp;
 		  return  (int) (metrics.density * dp + 0.5f);
 	  }
 	  
-	   private void openPanel()
+	  private void getDisplay()
+	  {
+		   display = getWindowManager().getDefaultDisplay();
+		   displaySize = new Point();
+		   display.getSize(displaySize);
+	  }
+	  
+	  
+	   public static void openPanel(Context context)
 	   {
-		   Display display = getWindowManager().getDefaultDisplay();
-		   Point size = new Point();
-		   display.getSize(size);
-		   int screenHeight = size.y;
-		   
-		   RelativeLayout layout = (RelativeLayout) findViewById(R.id.RelativeLayout1);
+		   Log.i("Songstone", "Open Panel");
+		  
 		   layout.setVisibility(0);
 
-		   
 		   LayoutParams lp = (LayoutParams) listView.getLayoutParams();
 		   //Log.d("S",scale(30)+" - wysokość");
-	       lp.height = screenHeight-scale(150);
+	       lp.height = displaySize.y-scale(context, 150);
 	       listView.setLayoutParams(lp);
 	   }
-	  
-	   
-	   
+	    
 	   /* Song control functions*/
 	   
 	   
@@ -180,6 +188,7 @@ public class Main extends Activity {
 	   {
 		   if (id != currentSong || id == -1)
 		   {
+			   openPanel(context);
 			   playSong(context, id);
 		   }
 		   else
