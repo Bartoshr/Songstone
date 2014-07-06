@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.BroadcastReceiver;
@@ -23,15 +24,31 @@ public class SongService extends Service {
 	static enum action {play,pause}
 	static boolean is_running = false; // indicate if service running
 	
+	//Notifications stuff
+	NotificationCompat.Builder noteBuilder;
+	NotificationManager noteManager;
+	int noteID = 1337;
+    Notification note;
+	
 	// real player
     MediaPlayer mp = new MediaPlayer();
+    
+
     
     public SongService() {
 		Log.i("Songstone", "Start SongService");
 		is_running = true;
 	}
     
+    
+    
     @Override
+	public void onCreate() {
+		setForeground();
+		super.onCreate();
+	}
+
+	@Override
     public int onStartCommand(Intent intent, int flags, int startId) { 
    
     	int actionId = intent.getIntExtra("action", 0);
@@ -54,11 +71,12 @@ public class SongService extends Service {
 	   {
 		   try {
 			mp.reset();
-			mp.setDataSource(Main.songsList.get(id).get("songPath"));
+			mp.setDataSource(Main.getSongPath(id));
 			mp.prepare();
 	  	  	mp.start();
 	  	  	
-	  	  	setForeground();
+		    startForeground(1337, note);
+		    updateNote(id);
 	  	  	
 	  	  	mp.setOnCompletionListener(new OnCompletionListener() {
 				public void onCompletion(MediaPlayer arg0) {
@@ -86,16 +104,27 @@ public class SongService extends Service {
 			Intent notificationIntent = new Intent(this, Main.class);
 			PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
 		
-			NotificationCompat.Builder builder = new NotificationCompat.Builder(
+			noteManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+			
+			noteBuilder = new NotificationCompat.Builder(
 	                this);
-	        Notification note = builder.setContentIntent(pendingIntent)
-	                .setSmallIcon(R.drawable.ic_launcher).setTicker("Music Playing").setWhen(System.currentTimeMillis())
+	        note = noteBuilder.setContentIntent(pendingIntent)
+	                .setSmallIcon(R.drawable.ic_launcher).setWhen(System.currentTimeMillis())
 	                .setAutoCancel(false).setContentTitle("Songstone")
 	                .setContentText("This text").build();
-	        
-		     startForeground(1337, note);
 		}
 	   
+		private void updateNote(int id)
+		{
+			String title = Main.getSongTitle(id);
+			
+			note = noteBuilder
+		    .setContentTitle(title)
+		    .setContentText("is played")
+		    .setWhen(System.currentTimeMillis()).build();
+			
+			 noteManager.notify(noteID, noteBuilder.build());
+		}
 		
 	   public void switchState() 
 	   {
@@ -112,6 +141,7 @@ public class SongService extends Service {
 	public void onDestroy() {
 		mp.stop();
 		is_running = false;
+		stopForeground(true);
 		super.onDestroy();
 	}
 

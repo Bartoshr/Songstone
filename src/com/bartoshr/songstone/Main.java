@@ -20,6 +20,7 @@ import android.util.Log;
 import android.view.Display;
 import android.view.Menu;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.AdapterView;
 import android.widget.ListAdapter;
@@ -83,8 +84,16 @@ public class Main extends Activity {
 	
 	@Override
 	protected void onStart() {
-		
 		super.onStart();
+		// Set panel on last played Song
+		Context context = getApplicationContext();
+		
+		if (currentSong != -1)
+			{
+			songLabel.setText(songsList.get(currentSong).get("songTitle"));
+			openPanel(context);
+			}
+		
 	}
 	
 	  @Override
@@ -124,16 +133,41 @@ public class Main extends Activity {
 	  public void setLabel()
 	  {
 		   	layout = (RelativeLayout) findViewById(R.id.RelativeLayout1);
+		   	
 		  
 			Typeface font = Typeface.createFromAsset(getAssets(), "fonts/ubuntu.ttf");
 			songLabel = (TextView) findViewById(R.id.songLabel);
-			songLabel.setTypeface(font);	
+			songLabel.setTypeface(font);
+			
+			songLabel.setOnClickListener(new OnClickListener() {
+				
+				@Override
+				public void onClick(View v) {
+					
+					Context context = getApplicationContext();
+					powerButton(context, currentSong);
+					
+				}
+			});
 	  }
 	  
 	  public void updateSongs()
 	  {
 		  SongsManager plm = new SongsManager();
 	        this.songsList = plm.ListAllSongs(getApplicationContext());
+	  }
+	  
+	  // Songlist info functions 
+	  
+	  public static String getSongTitle(int id)
+	  {
+		  return songsList.get(id).get("songTitle");
+	  }
+	  
+	  
+	  public static String getSongPath(int id)
+	  {
+		  return songsList.get(id).get("songPath");
 	  }
 	  
 	  // Metrics funtions - get display parameters
@@ -161,7 +195,7 @@ public class Main extends Activity {
 
 		   LayoutParams lp = (LayoutParams) listView.getLayoutParams();
 		   //Log.d("S",scale(30)+" - wysokość");
-	       lp.height = displaySize.y-scale(context, 150);
+	       lp.height = displaySize.y-scale(context, 125);
 	       listView.setLayoutParams(lp);
 	   }
 	    

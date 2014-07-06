@@ -6,6 +6,8 @@
     android:gravity="center"
     android:background="@drawable/list_selector"
     android:padding="5dp">
+
+    
     <TextView 
         android:id="@+id/label"
         android:layout_width="fill_parent"
