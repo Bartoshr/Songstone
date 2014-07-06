@@ -33,7 +33,8 @@ public class SongService extends Service {
 	// real player
     MediaPlayer mp = new MediaPlayer();
     
-
+    // Foreground
+    boolean isForegroundStarted = false;
     
     public SongService() {
 		Log.i("Songstone", "Start SongService");
@@ -75,7 +76,7 @@ public class SongService extends Service {
 			mp.prepare();
 	  	  	mp.start();
 	  	  	
-		    startForeground(1337, note);
+		    if(isForegroundStarted)startForeground(1337, note);
 		    updateNote(id);
 	  	  	
 	  	  	mp.setOnCompletionListener(new OnCompletionListener() {
@@ -101,6 +102,8 @@ public class SongService extends Service {
 	   
 		private void setForeground()
 		{
+			isForegroundStarted = true;
+			
 			Intent notificationIntent = new Intent(this, Main.class);
 			PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
 		
@@ -141,6 +144,7 @@ public class SongService extends Service {
 	public void onDestroy() {
 		mp.stop();
 		is_running = false;
+		isForegroundStarted = false;
 		stopForeground(true);
 		super.onDestroy();
 	}

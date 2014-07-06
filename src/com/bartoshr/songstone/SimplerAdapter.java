@@ -15,24 +15,39 @@ public class SimplerAdapter extends SimpleAdapter {
 
     private ArrayList<HashMap<String, String>> results;
     private Context context;
+    
+    Typeface mTypeface;
+    LayoutInflater mInflater;
 
     public SimplerAdapter(Context context, ArrayList<HashMap<String, String>> data, int resource, String[] from, int[] to) {
         super(context, data, resource, from, to);
         this.context = context;
         this.results = data;
+        
+        mTypeface = Typeface.createFromAsset(context.getAssets(), "fonts/ubuntu.ttf");
+        mInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
-    public View getView(int position, View view, ViewGroup parent){
-
-        Typeface localTypeface1 = Typeface.createFromAsset(context.getAssets(), "fonts/ubuntu.ttf");
-        View v = view;
-        if (v == null) {
-            LayoutInflater vi = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            v = vi.inflate(R.layout.list_item, null);
+    public View getView(int position, View convertView, ViewGroup parent){
+    	ViewHolder holder;
+    	
+        if (convertView == null) {            
+            convertView = mInflater.inflate(R.layout.list_item, null);
+            
+            holder = new ViewHolder();
+            holder.text = (TextView) convertView.findViewById(R.id.label);
+            
+            convertView.setTag(holder);
+        }else {
+            holder = (ViewHolder) convertView.getTag();
         }
-        TextView tt = (TextView) v.findViewById(R.id.label);
-        tt.setText(results.get(position).get("songTitle"));
-        tt.setTypeface(localTypeface1);
-        return v;
+        
+        holder.text.setText(results.get(position).get("songTitle"));
+        holder.text.setTypeface(mTypeface);
+        return convertView;
+    }
+    
+    private static class ViewHolder {
+        public TextView text;
     }
 }
