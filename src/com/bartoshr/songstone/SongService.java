@@ -16,8 +16,13 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.os.IBinder;
+import android.os.SystemClock;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+import android.view.KeyEvent;
+import android.webkit.WebView.FindListener;
+import android.widget.Button;
+import android.widget.RemoteViews;
 
 public class SongService extends Service {
 
@@ -27,9 +32,14 @@ public class SongService extends Service {
 	//Notifications stuff
 	NotificationCompat.Builder noteBuilder;
 	NotificationManager noteManager;
+	RemoteViews noteView;
 	int noteID = 1337;
     Notification note;
 	
+    // Buttons
+    Button next;
+    Button prev;
+    
 	// real player
     MediaPlayer mp = new MediaPlayer();
     
@@ -104,17 +114,44 @@ public class SongService extends Service {
 		{
 			isForegroundStarted = true;
 			
-			Intent notificationIntent = new Intent(this, Main.class);
-			PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
+			noteView = new RemoteViews(getPackageName(),
+	                R.layout.notification);
+			
+			
+			long eventtime = SystemClock.uptimeMillis(); 
+			Intent intent = new Intent(Intent.ACTION_MEDIA_BUTTON, null); 
+			KeyEvent upEvent = new KeyEvent(eventtime, eventtime, 
+			KeyEvent.ACTION_UP, KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE, 0); 
+			intent.putExtra(Intent.EXTRA_KEY_EVENT, upEvent); 
+			  
+			PendingIntent pendingIntent = 
+					PendingIntent.getBroadcast(this, 0, intent, 0);
 		
 			noteManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 			
 			noteBuilder = new NotificationCompat.Builder(
 	                this);
-	        note = noteBuilder.setContentIntent(pendingIntent)
-	                .setSmallIcon(R.drawable.ic_launcher).setWhen(System.currentTimeMillis())
-	                .setAutoCancel(false).setContentTitle("Songstone")
-	                .setContentText("This text").build();
+	        note = noteBuilder
+	                .setSmallIcon(R.drawable.ic_launcher)
+	                .setWhen(System.currentTimeMillis())
+	                .setAutoCancel(true)
+	                .setContentTitle("Songstone")
+	                .setContentText("This text")
+	                .setContent(noteView)
+	                .build();
+	        
+	        noteView.setImageViewResource(R.id.imagenotileft,R.drawable.arrow_left);
+	        noteView.setImageViewResource(R.id.imagenotiright,R.drawable.arrow_right);
+	        
+	        noteView.setOnClickPendingIntent(R.id.imagenotiright, pendingIntent);
+	        
+	        noteView.setTextViewText(R.id.title,"Mr. Sandman - The Chordettes");
+		}
+	
+		
+		private void setNoteButtons()
+		{
+			//next = noteView.
 		}
 	   
 		private void updateNote(int id)
@@ -124,7 +161,10 @@ public class SongService extends Service {
 			note = noteBuilder
 		    .setContentTitle(title)
 		    .setContentText("is played")
+		    .setAutoCancel(true)
 		    .setWhen(System.currentTimeMillis()).build();
+			
+			noteView.setTextViewText(R.id.title, title);
 			
 			 noteManager.notify(noteID, noteBuilder.build());
 		}
