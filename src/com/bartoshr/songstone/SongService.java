@@ -3,6 +3,7 @@ package com.bartoshr.songstone;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import android.R.anim;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -12,16 +13,20 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.drawable.AnimationDrawable;
+import android.graphics.drawable.BitmapDrawable;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.os.IBinder;
 import android.os.SystemClock;
+import android.provider.ContactsContract.CommonDataKinds.Note;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.webkit.WebView.FindListener;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.RemoteViews;
 
 public class SongService extends Service {
@@ -29,16 +34,22 @@ public class SongService extends Service {
 	static enum action {play,pause}
 	static boolean is_running = false; // indicate if service running
 	
-	//Notifications stuff
-	NotificationCompat.Builder noteBuilder;
-	NotificationManager noteManager;
-	RemoteViews noteView;
-	int noteID = 1337;
-    Notification note;
+	//Actions 
+    public static final String ACTION_PLAY="com.bartoshr.songstone.ACTION_PLAY";
+    public static final String ACTION_PAUSE="com.bartoshr.songstone.ACTION_PAUSE";
+    public static final String ACTION_NEXT = "com.bartoshr.songstone.ACTION_NEXT";
+	public static final String ACTION_PREV="com.bartoshr.songstone.ACTION_PREV";
+	public static final String ACTION_FLOW="com.bartoshr.songstone.ACTION_FLOW";
 	
-    // Buttons
-    Button next;
-    Button prev;
+	//Notifications stuff
+	static NotificationCompat.Builder noteBuilder;
+	static NotificationManager noteManager;
+	static RemoteViews noteView;
+	static int noteID = 1337;
+    Notification note;
+	   
+    // Service own current indicator
+    int serviceCurrentSong = -1;
     
 	// real player
     MediaPlayer mp = new MediaPlayer();
@@ -46,8 +57,14 @@ public class SongService extends Service {
     // Foreground
     boolean isForegroundStarted = false;
     
+    //Animation
+    static boolean isLeftArrowPressed = false;
+    static boolean isRightArrowPressed = false;
+    public static AnimationDrawable left_arrow_animation;
+    public static AnimationDrawable right_arrow_animation;
+    
     public SongService() {
-		Log.i("Songstone", "Start SongService");
+		Main.Log("SONGSEVICE");
 		is_running = true;
 	}
     
@@ -56,30 +73,109 @@ public class SongService extends Service {
     @Override
 	public void onCreate() {
 		setForeground();
+		setAnimation();
 		super.onCreate();
 	}
 
 	@Override
     public int onStartCommand(Intent intent, int flags, int startId) { 
    
-    	int actionId = intent.getIntExtra("action", 0);
-    	action act = action.values()[actionId];
- 	
-    	switch(act)
-    	{ 
-    	case play:
-        	playSong(intent.getIntExtra("id", 0));
-    		break;
-    	case pause:
-    		switchState();
-    		break;
-    	}
+    	String action = intent.getAction();
+    	Context context = getApplicationContext();
     	
+    	 if (action.equals(ACTION_PLAY)) {
+    		 Main.Log("ACTION_PLAY");
+             playSong(Main.currentSong);
+         }else if(action.equals(ACTION_PAUSE)) {
+        	 Main.Log("ACTION_PAUSE");
+             switchState();
+         }else if (action.equals(ACTION_NEXT)) {
+        	 Main.Log("ACTION_NEXT");
+        	 Main.nextSong(context);
+        	 isRightArrowPressed = true;
+         }else if (action.equals(ACTION_PREV)) {
+        	 Main.Log("ACTION_PREV");
+        	 Main.prevSong(context);
+        	 isLeftArrowPressed = true;
+         }else if (action.equals(ACTION_FLOW)) {
+        	 Main.Log("ACTION_FLOW");
+        	 flow();
+         }
+     	
     	return Service.START_NOT_STICKY;
     }
 
+	public void setAnimation()
+	{
+		Main.Log("SET_ANIMATION");
+		ImageView aniView = new ImageView(this);
+		
+	     aniView.setBackgroundResource(R.drawable.left_arrow_animation);
+	     left_arrow_animation = (AnimationDrawable) aniView.getBackground();
+	     
+	     aniView.setBackgroundResource(R.drawable.right_arrow_animation);
+	     right_arrow_animation = (AnimationDrawable) aniView.getBackground();
+	}
+	
+	public static void startLeftAnimation()
+	{
+		if(isLeftArrowPressed) {
+        new Thread(new Runnable() {
+            public void run() {
+            	Main.Log("ANIMATION_RUN");
+                int frameIndex = 0;
+                boolean mRun = true;
+                while (mRun) {
+                    ++frameIndex;
+                    SystemClock.sleep(100);
+                    BitmapDrawable frame = (BitmapDrawable) left_arrow_animation.getFrame(frameIndex);
+                    noteView.setImageViewBitmap(R.id.imagenotileft, frame.getBitmap());
+                    noteManager.notify(noteID, noteBuilder.build());
+                    if (frameIndex >= left_arrow_animation.getNumberOfFrames()-1) {
+                        break;
+                    }
+                }
+                
+            }
+          }).start();
+		}
+		isLeftArrowPressed = false;
+	}
+	
+	
+	public static void startRightAnimation()
+	{
+		if(isRightArrowPressed) {
+        new Thread(new Runnable() {
+            public void run() {
+            	Main.Log("ANIMATION_RUN");
+                int frameIndex = 0;
+                boolean mRun = true;
+                while (mRun) {
+                    ++frameIndex;
+                    SystemClock.sleep(100);
+                    BitmapDrawable frame = (BitmapDrawable) right_arrow_animation.getFrame(frameIndex);
+                    noteView.setImageViewBitmap(R.id.imagenotiright, frame.getBitmap());
+                    noteManager.notify(noteID, noteBuilder.build());
+                    if (frameIndex >= right_arrow_animation.getNumberOfFrames()-1) {
+                        break;
+                    }
+                }
+
+            }
+          }).start();
+		}
+		isRightArrowPressed = false;
+	}
+	
+	
 	   public void playSong(int id)
 	   {
+		   // just in case
+		   id = (id != -1) ? id : 0;
+		   Main.currentSong = id;
+		   serviceCurrentSong = id;
+		   
 		   try {
 			mp.reset();
 			mp.setDataSource(Main.getSongPath(id));
@@ -92,6 +188,7 @@ public class SongService extends Service {
 	  	  	mp.setOnCompletionListener(new OnCompletionListener() {
 				public void onCompletion(MediaPlayer arg0) {
 					Main.nextSong(getApplicationContext());
+					isRightArrowPressed = true;
 				}
 			});
 	  	  	
@@ -110,23 +207,32 @@ public class SongService extends Service {
 		}
 	   }
 	   
+	   private void flow()
+	   {
+		   if (Main.currentSong != serviceCurrentSong 
+				   || Main.currentSong == -1)
+		   {
+			   playSong(Main.currentSong);
+		   }
+		   else
+		   {
+			   switchState();
+		   }
+	   }
+	   
+	   
 		private void setForeground()
 		{
 			isForegroundStarted = true;
 			
 			noteView = new RemoteViews(getPackageName(),
 	                R.layout.notification);
+			noteView.setImageViewResource(R.id.imagenotileft,R.drawable.arrow_left);
+		    noteView.setImageViewResource(R.id.imagenotiright,R.drawable.arrow_right);
+		    noteView.setTextViewText(R.id.title,"Mr. Sandman - The Chordettes");
 			
-			
-			long eventtime = SystemClock.uptimeMillis(); 
-			Intent intent = new Intent(Intent.ACTION_MEDIA_BUTTON, null); 
-			KeyEvent upEvent = new KeyEvent(eventtime, eventtime, 
-			KeyEvent.ACTION_UP, KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE, 0); 
-			intent.putExtra(Intent.EXTRA_KEY_EVENT, upEvent); 
-			  
-			PendingIntent pendingIntent = 
-					PendingIntent.getBroadcast(this, 0, intent, 0);
-		
+		    setNoteButtons();
+   		
 			noteManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 			
 			noteBuilder = new NotificationCompat.Builder(
@@ -134,37 +240,50 @@ public class SongService extends Service {
 	        note = noteBuilder
 	                .setSmallIcon(R.drawable.ic_launcher)
 	                .setWhen(System.currentTimeMillis())
-	                .setAutoCancel(true)
+	                .setAutoCancel(false)
 	                .setContentTitle("Songstone")
 	                .setContentText("This text")
 	                .setContent(noteView)
 	                .build();
-	        
-	        noteView.setImageViewResource(R.id.imagenotileft,R.drawable.arrow_left);
-	        noteView.setImageViewResource(R.id.imagenotiright,R.drawable.arrow_right);
-	        
-	        noteView.setOnClickPendingIntent(R.id.imagenotiright, pendingIntent);
-	        
-	        noteView.setTextViewText(R.id.title,"Mr. Sandman - The Chordettes");
 		}
 	
 		
 		private void setNoteButtons()
 		{
-			//next = noteView.
+			Intent intent = new Intent(getApplicationContext(), SongService.class);
+			
+			intent.setAction(ACTION_FLOW);
+			PendingIntent pendingIntent = 
+					PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+	        noteView.setOnClickPendingIntent(R.id.title, pendingIntent);
+			
+
+	        intent.setAction(ACTION_NEXT);
+			pendingIntent = 
+					PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+			noteView.setOnClickPendingIntent(R.id.imagenotiright, pendingIntent);
+			
+			
+			intent.setAction(ACTION_PREV);
+			pendingIntent = 
+					PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+			noteView.setOnClickPendingIntent(R.id.imagenotileft, pendingIntent);
 		}
 	   
 		private void updateNote(int id)
 		{
 			String title = Main.getSongTitle(id);
-			
+				
 			note = noteBuilder
 		    .setContentTitle(title)
 		    .setContentText("is played")
-		    .setAutoCancel(true)
+		    .setAutoCancel(false)
 		    .setWhen(System.currentTimeMillis()).build();
 			
 			noteView.setTextViewText(R.id.title, title);
+			
+			startLeftAnimation();
+			startRightAnimation();
 			
 			 noteManager.notify(noteID, noteBuilder.build());
 		}

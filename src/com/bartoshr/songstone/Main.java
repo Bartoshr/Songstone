@@ -4,14 +4,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import android.media.AudioManager;
-import android.media.AudioRecord.OnRecordPositionUpdateListener;
 import android.os.Bundle;
 import android.app.Activity;
-import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Point;
 import android.graphics.Typeface;
@@ -119,8 +116,6 @@ public class Main extends Activity {
 	        listView.setOnItemClickListener(new OnItemClickListener() {
 	          public void onItemClick(AdapterView<?> parent, View view,
 	              int position, long id) {
-	      	    Log.i("Songstone","service running = "+SongService.is_running);
-	      	  Log.i("Songstone","currentSong = "+currentSong);
 	      	  
 	      	  	Context context = getApplicationContext();
 	      	  
@@ -188,13 +183,10 @@ public class Main extends Activity {
 	  
 	  
 	   public static void openPanel(Context context)
-	   {
-		   Log.i("Songstone", "Open Panel");
-		  
+	   {		  
 		   layout.setVisibility(0);
 
 		   LayoutParams lp = (LayoutParams) listView.getLayoutParams();
-		   //Log.d("S",scale(30)+" - wysokość");
 	       lp.height = displaySize.y-scale(context, 125);
 	       listView.setLayoutParams(lp);
 	   }
@@ -209,11 +201,10 @@ public class Main extends Activity {
 		   currentSong = (currentSong != -1) ? currentSong : 0;
 		  
 		   songLabel.setText(songsList.get(currentSong).get("songTitle"));
-		   Log.i("Songstone", "id - "+id+", currentSong - "+ currentSong);
+		   Log("PLAYSONG = "+currentSong);
 		   
 			//SongSerice
-		   songService.putExtra("action", 0 /* play*/);
-		   songService.putExtra("id", currentSong);
+		   songService.setAction(SongService.ACTION_PLAY);
 		   context.startService(songService);
 		   
 	   }
@@ -233,8 +224,8 @@ public class Main extends Activity {
 	   
 	   public static void switchSong(Context context) 
 	   {
-		   Log.i("Songstone", "SwitchSong, currentSong ="+currentSong);
-			songService.putExtra("action", 1 /* pause or resume*/);
+		   Log("SWITCHSONG = "+currentSong);
+			songService.setAction(SongService.ACTION_PAUSE);
 			context.startService(songService); 
 	   }
 	  
@@ -266,7 +257,7 @@ public class Main extends Activity {
 	   private void restorePreferences()
 	   {
 		   currentSong = preferences.getInt(CURRENT_SONG, -1);
-		   Log.i("Songstone", "Restore CurrentSong ="+currentSong);
+		   Log.i("Songstone", "RESTORE = "+currentSong);
 	   }
 
 	   
@@ -283,6 +274,12 @@ public class Main extends Activity {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.main, menu);
 		return true;
+	}
+	
+	// Just for a while
+	public static void Log(String s)
+	{
+		Log.i("Songstone", s);
 	}
 
 }
