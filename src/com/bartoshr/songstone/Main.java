@@ -1,5 +1,6 @@
 package com.bartoshr.songstone;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -29,7 +30,7 @@ import android.widget.AdapterView.OnItemClickListener;
 public class Main extends Activity {
 
 	// storage and display songs
-	public static ArrayList<HashMap<String, String>> songsList = new ArrayList<HashMap<String, String>>();
+	public static ArrayList<Song> songsList = new ArrayList<Song>();
 	public static ListView listView;
 	
 	// Showing current Song and controls
@@ -53,6 +54,8 @@ public class Main extends Activity {
     private static final String CURRENT_SONG = "CurrentSongPref";
     private SharedPreferences preferences;
     
+    //Getting the songs
+    SongsManager plm;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -87,7 +90,7 @@ public class Main extends Activity {
 		
 		if (currentSong != -1)
 			{
-			songLabel.setText(songsList.get(currentSong).get("songTitle"));
+			songLabel.setText(songsList.get(currentSong).getTitle());
 			openPanel(context);
 			}
 		
@@ -100,17 +103,13 @@ public class Main extends Activity {
                 mRemoteControlResponder);
 	}
 
-	  
+	
 
 	public void setListView()
 	   {
 		  listView = (ListView)findViewById(R.id.listView);
-  
-	        ListAdapter adapter = new SimplerAdapter(this, songsList,
-	                R.layout.list_item, new String[] { "songTitle" }, new int[] {
-	                        R.id.label });
-	        	        
-	        listView.setAdapter(adapter); 
+  	        	        
+	        listView.setAdapter(new StoneAdapter(getApplicationContext(), songsList)); 
 		  
 	        // listening to single list item on click
 	        listView.setOnItemClickListener(new OnItemClickListener() {
@@ -148,21 +147,21 @@ public class Main extends Activity {
 	  
 	  public void updateSongs()
 	  {
-		  SongsManager plm = new SongsManager();
-	        this.songsList = plm.ListAllSongs(getApplicationContext());
+		   	plm = new SongsManager();
+	        this.songsList = plm.ListAllSongs(getApplicationContext());		  
 	  }
 	  
 	  // Songlist info functions 
 	  
 	  public static String getSongTitle(int id)
 	  {
-		  return songsList.get(id).get("songTitle");
+		  return songsList.get(id).getTitle();
 	  }
 	  
 	  
 	  public static String getSongPath(int id)
 	  {
-		  return songsList.get(id).get("songPath");
+		  return songsList.get(id).getPath();
 	  }
 	  
 	  // Metrics funtions - get display parameters
@@ -200,7 +199,7 @@ public class Main extends Activity {
 		   currentSong = id;
 		   currentSong = (currentSong != -1) ? currentSong : 0;
 		  
-		   songLabel.setText(songsList.get(currentSong).get("songTitle"));
+		   songLabel.setText(songsList.get(currentSong).getTitle());
 		   Log("PLAYSONG = "+currentSong);
 		   
 			//SongSerice
@@ -281,5 +280,6 @@ public class Main extends Activity {
 	{
 		Log.i("Songstone", s);
 	}
-
+	
+	
 }

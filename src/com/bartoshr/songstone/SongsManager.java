@@ -17,7 +17,7 @@ import android.util.Log;
 public class SongsManager {
 
     final String MEDIA_PATH = new String("/sdcard/");
-    private ArrayList<HashMap<String, String>> songsList = new ArrayList<HashMap<String, String>>();
+    private ArrayList<Song> songsList = new ArrayList<Song>();
  
     public SongsManager(){
  
@@ -25,7 +25,7 @@ public class SongsManager {
     
     private String[] STAR = { "*" };
 
-    public ArrayList<HashMap<String, String>> ListAllSongs(Context context) 
+    public ArrayList<Song> ListAllSongs(Context context) 
         { 
             Cursor cursor;
             Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
@@ -46,10 +46,8 @@ public class SongsManager {
                             String fullpath = cursor.getString(cursor
                                     .getColumnIndex(MediaStore.Audio.Media.DATA));
                             
-                            HashMap<String, String> song = new HashMap<String, String>();
-                            song.put("songTitle", songname.substring(0, songname.length()-3));
-                            song.put("songPath", fullpath);
-             
+                            Song song = new Song(songname.substring(0, songname.length()-3), fullpath);
+                            
                             // Adding each song to SongList
                             songsList.add(song);
                             
