@@ -5,7 +5,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import android.media.AudioManager;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
@@ -17,10 +19,12 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.AdapterView;
+import android.widget.BaseAdapter;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -32,6 +36,7 @@ public class Main extends Activity {
 	// storage and display songs
 	public static ArrayList<Song> songsList = new ArrayList<Song>();
 	public static ListView listView;
+	public static StoneAdapter stone;
 	
 	// Showing current Song and controls
 	public static TextView songLabel;
@@ -56,11 +61,15 @@ public class Main extends Activity {
     
     //Getting the songs
     SongsManager plm;
+    
+    Context context;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
+		
+		context = getApplicationContext();
 		
 		// bring back previous settings
 		preferences = getSharedPreferences(PREFERENCES_NAME, Activity.MODE_PRIVATE);
@@ -69,9 +78,10 @@ public class Main extends Activity {
 		//get Display size
 		getDisplay();
 
-		songService = new Intent(getApplicationContext(), SongService.class);
+		songService = new Intent(context, SongService.class);
 		
 		setLabel(); 
+				
 		updateSongs();
 		setListView();
 		
@@ -85,9 +95,10 @@ public class Main extends Activity {
 	@Override
 	protected void onStart() {
 		super.onStart();
-		// Set panel on last played Song
-		Context context = getApplicationContext();
+
+		updateSongs();
 		
+		// Set panel on last played Song
 		if (currentSong != -1)
 			{
 			songLabel.setText(songsList.get(currentSong).getTitle());
@@ -108,15 +119,15 @@ public class Main extends Activity {
 	public void setListView()
 	   {
 		  listView = (ListView)findViewById(R.id.listView);
-  	        	        
-	        listView.setAdapter(new StoneAdapter(getApplicationContext(), songsList)); 
+  	      
+		  if(stone == null) stone = new StoneAdapter(getApplicationContext(), songsList);		  
+	        listView.setAdapter(stone); 
 		  
 	        // listening to single list item on click
 	        listView.setOnItemClickListener(new OnItemClickListener() {
 	          public void onItemClick(AdapterView<?> parent, View view,
 	              int position, long id) {
 	      	  
-	      	  	Context context = getApplicationContext();
 	      	  
 	        	  powerButton(context, position);
 	          }
@@ -138,7 +149,6 @@ public class Main extends Activity {
 				@Override
 				public void onClick(View v) {
 					
-					Context context = getApplicationContext();
 					powerButton(context, currentSong);
 					
 				}
@@ -147,8 +157,42 @@ public class Main extends Activity {
 	  
 	  public void updateSongs()
 	  {
-		   	plm = new SongsManager();
-	        this.songsList = plm.ListAllSongs(getApplicationContext());		  
+			  plm = new SongsManager();
+			  
+			  Log("on UpdateSong songList = "+songsList.isEmpty());
+			  
+			  if (currentSong != -1 && !songsList.isEmpty()) {
+				  
+				  Song song = songsList.get(currentSong);
+				  songsList = plm.ListAllSongs(context);
+				 currentSong = songsList.indexOf(song);
+				 
+				 updateListView();
+			  
+			  } else {
+				  songsList = plm.ListAllSongs(context); 
+			  }
+			  
+			  Log("UPDATE_LIST - "+songsList.size());
+	  }
+	  
+	  public void updateListView()
+	  {
+		  stone = new StoneAdapter(context, songsList);
+		  listView.setAdapter(stone);
+		  ((BaseAdapter)listView.getAdapter()).notifyDataSetChanged();
+	  }
+	  
+	  public void updateMediaDatabase()
+	  {
+		  sendBroadcast(new Intent(Intent.ACTION_MEDIA_MOUNTED,
+				  Uri.parse("file://" + Environment.getExternalStorageDirectory())));
+		  
+		  plm = new SongsManager();
+		  songsList = plm.ListAllSongs(context);
+		  Log("REFRESH - "+songsList.size());
+		  
+		  updateListView();
 	  }
 	  
 	  // Songlist info functions 
@@ -268,6 +312,27 @@ public class Main extends Activity {
 	                mRemoteControlResponder);
 	}
 	   
+	
+	   
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {		 
+	        switch (item.getItemId()) {
+	 
+	        case R.id.action_refresh:
+	        	 Log("ACTION_REFRESH");
+	        	 updateMediaDatabase();
+	            break;
+	        case R.id.action_settings:
+	        	 Log("ACTION_SETTINGS");
+	            break;	          
+	        default:
+	 
+	        }
+	        
+		return super.onOptionsItemSelected(item);
+	}
+
+
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.

@@ -16,8 +16,9 @@ import android.util.Log;
  
 public class SongsManager {
 
-    final String MEDIA_PATH = new String("/sdcard/");
+    //final String MEDIA_PATH = new String("/sdcard/");
     private ArrayList<Song> songsList = new ArrayList<Song>();
+    
  
     public SongsManager(){
  
@@ -39,17 +40,22 @@ public class SongsManager {
                     if (cursor.moveToFirst()) {
                         do {
                         	
+                        	 String fullpath = cursor.getString(cursor
+                                     .getColumnIndex(MediaStore.Audio.Media.DATA));
+                        	 
+                        	if((new File(fullpath)).exists()) {
                             String songname = cursor
                                     .getString(cursor
                                             .getColumnIndex(MediaStore.Audio.Media.DISPLAY_NAME));
                             
-                            String fullpath = cursor.getString(cursor
-                                    .getColumnIndex(MediaStore.Audio.Media.DATA));
+                           
+                            Main.Log(" MEDIA DATA"+fullpath);
                             
                             Song song = new Song(songname.substring(0, songname.length()-3), fullpath);
                             
                             // Adding each song to SongList
                             songsList.add(song);
+                        	}
                             
 
                         } while (cursor.moveToNext());

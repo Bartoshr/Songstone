@@ -21,6 +21,7 @@
         <receiver android:name="RemoteControlReceiver">
     		<intent-filter>
         		<action android:name="android.intent.action.MEDIA_BUTTON" />
+        		<action android:name="android.intent.action.MEDIA_MOUNTED" />
         		<action android:name="com.bartoshr.songstone.ACTION_PLAY" />
             	<action android:name="com.bartoshr.songstone.ACTION_PAUSE" />
             	<action android:name="com.bartoshr.songstone.ACTION_NEXT"/>

@@ -3,6 +3,6 @@
 
     <string name="app_name">Songstone</string>
     <string name="action_settings">Settings</string>
-    <string name="hello_world">Hello world!</string>
+    <string name="action_refresh">Refresh</string>
 
 </resources>
