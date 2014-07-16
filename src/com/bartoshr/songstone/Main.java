@@ -2,15 +2,22 @@ package com.bartoshr.songstone;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.SystemClock;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.Fragment;
+import android.app.FragmentTransaction;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Point;
@@ -18,12 +25,15 @@ import android.graphics.Typeface;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnLongClickListener;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.BaseAdapter;
 import android.widget.ListAdapter;
 import android.widget.ListView;
@@ -63,8 +73,7 @@ public class Main extends Activity {
     SongsManager plm;
     
     Context context;
-
-	@Override
+    
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
@@ -127,11 +136,20 @@ public class Main extends Activity {
 	        listView.setOnItemClickListener(new OnItemClickListener() {
 	          public void onItemClick(AdapterView<?> parent, View view,
 	              int position, long id) {
-	      	  
-	      	  
 	        	  powerButton(context, position);
 	          }
 	        });
+	        
+	        listView.setOnItemLongClickListener(new OnItemLongClickListener() {
+
+				@Override
+				public boolean onItemLongClick(AdapterView<?> parent, View view,
+						int position, long id) {
+					Log("Long press on "+position);
+					openDialog();
+					return false;
+				}
+			});
 	   }
 	
 	
@@ -169,8 +187,13 @@ public class Main extends Activity {
 				 
 				 updateListView();
 			  
+			  } else if(listView != null) {
+				  
+				  songsList = plm.ListAllSongs(context);
+				  updateListView();
+				  
 			  } else {
-				  songsList = plm.ListAllSongs(context); 
+				  songsList = plm.ListAllSongs(context);
 			  }
 			  
 			  Log("UPDATE_LIST - "+songsList.size());
@@ -183,10 +206,12 @@ public class Main extends Activity {
 		  ((BaseAdapter)listView.getAdapter()).notifyDataSetChanged();
 	  }
 	  
-	  public void updateMediaDatabase()
+	  public void refresh()
 	  {
 		  sendBroadcast(new Intent(Intent.ACTION_MEDIA_MOUNTED,
 				  Uri.parse("file://" + Environment.getExternalStorageDirectory())));
+		  
+		  SystemClock.sleep(1000);
 		  
 		  plm = new SongsManager();
 		  songsList = plm.ListAllSongs(context);
@@ -320,7 +345,7 @@ public class Main extends Activity {
 	 
 	        case R.id.action_refresh:
 	        	 Log("ACTION_REFRESH");
-	        	 updateMediaDatabase();
+	        	 refresh();
 	            break;
 	        case R.id.action_settings:
 	        	 Log("ACTION_SETTINGS");
@@ -332,12 +357,38 @@ public class Main extends Activity {
 		return super.onOptionsItemSelected(item);
 	}
 
+	public Dialog onCreateDialog(Bundle savedInstanceState) {
+	    AlertDialog.Builder builder = new AlertDialog.Builder(this);
+	    LayoutInflater inflater = this.getLayoutInflater();
+	    builder.setView(inflater.inflate(R.layout.dialog, null))
+	    
+	    // Add action buttons
+	           .setPositiveButton(R.string.apply, new DialogInterface.OnClickListener() {
+	               @Override
+	               public void onClick(DialogInterface dialog, int id) {
+	                   // sign in the user ...
+	               }
+	           })
+	           .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+	               public void onClick(DialogInterface dialog, int id) {
+	                   //LoginDialogFragment.this.getDialog().cancel();
+	               }
+	           });      
+	    return builder.create();
+	}
 
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.main, menu);
-		return true;
+	public void openDialog()
+	{
+		    FragmentTransaction ft = getFragmentManager().beginTransaction();
+		    Fragment prev = getFragmentManager().findFragmentByTag("dialog");
+		    if (prev != null) {
+		        ft.remove(prev);
+		    }
+		    ft.addToBackStack(null);
+
+		    // Create and show the dialog.
+		    SongDialog newFragment = SongDialog.newInstance(0);
+		    newFragment.show(ft, "dialog");
 	}
 	
 	// Just for a while
@@ -345,6 +396,7 @@ public class Main extends Activity {
 	{
 		Log.i("Songstone", s);
 	}
-	
+
+
 	
 }

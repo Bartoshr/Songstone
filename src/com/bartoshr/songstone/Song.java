@@ -1,6 +1,7 @@
 package com.bartoshr.songstone;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 
 public class Song {
@@ -18,5 +19,7 @@ public class Song {
 	
 	public String getTitle() { return this.title; }
 	public String getPath() { return this.path; }
+	
+
 	
 }
