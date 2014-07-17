@@ -86,7 +86,8 @@ public class Main extends Activity {
 		
 		//get Display size
 		getDisplay();
-
+		
+		if(songService == null) Log("SongService is NULL");
 		songService = new Intent(context, SongService.class);
 		
 		setLabel(); 
@@ -104,10 +105,14 @@ public class Main extends Activity {
 	@Override
 	protected void onStart() {
 		super.onStart();
+		
+		restorePreferences();
 
 		updateSongs();
 		
 		// Set panel on last played Song
+		
+		Log("ONSTART = "+currentSong);
 		if (currentSong != -1)
 			{
 			songLabel.setText(songsList.get(currentSong).getTitle());
@@ -184,7 +189,7 @@ public class Main extends Activity {
 				  Song song = songsList.get(currentSong);
 				  songsList = plm.ListAllSongs(context);
 				 currentSong = songsList.indexOf(song);
-				 
+				 				 
 				 updateListView();
 			  
 			  } else if(listView != null) {
@@ -357,25 +362,6 @@ public class Main extends Activity {
 		return super.onOptionsItemSelected(item);
 	}
 
-	public Dialog onCreateDialog(Bundle savedInstanceState) {
-	    AlertDialog.Builder builder = new AlertDialog.Builder(this);
-	    LayoutInflater inflater = this.getLayoutInflater();
-	    builder.setView(inflater.inflate(R.layout.dialog, null))
-	    
-	    // Add action buttons
-	           .setPositiveButton(R.string.apply, new DialogInterface.OnClickListener() {
-	               @Override
-	               public void onClick(DialogInterface dialog, int id) {
-	                   // sign in the user ...
-	               }
-	           })
-	           .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-	               public void onClick(DialogInterface dialog, int id) {
-	                   //LoginDialogFragment.this.getDialog().cancel();
-	               }
-	           });      
-	    return builder.create();
-	}
 
 	public void openDialog()
 	{

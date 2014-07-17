@@ -251,15 +251,9 @@ public class SongService extends Service {
 		private void setNoteButtons()
 		{
 			Intent intent = new Intent(getApplicationContext(), SongService.class);
-			
-			intent.setAction(ACTION_FLOW);
-			PendingIntent pendingIntent = 
-					PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-	        noteView.setOnClickPendingIntent(R.id.title, pendingIntent);
-			
 
 	        intent.setAction(ACTION_NEXT);
-			pendingIntent = 
+			PendingIntent pendingIntent = 
 					PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 			noteView.setOnClickPendingIntent(R.id.imagenotiright, pendingIntent);
 			
@@ -268,6 +262,14 @@ public class SongService extends Service {
 			pendingIntent = 
 					PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 			noteView.setOnClickPendingIntent(R.id.imagenotileft, pendingIntent);
+			
+			
+			intent = new Intent(getApplicationContext(), Main.class);
+			intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+			intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+			pendingIntent = 
+					PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+	        noteView.setOnClickPendingIntent(R.id.title, pendingIntent);
 		}
 	   
 		private void updateNote(int id)
