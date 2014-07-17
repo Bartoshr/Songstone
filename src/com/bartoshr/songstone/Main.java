@@ -61,14 +61,8 @@ public class Main extends Activity {
     public static Display display;
     public static Point displaySize;
     
-    // indicates on current played song
-    public static int currentSong = -1; 
-	
-    //Store settings after restart
-    private static final String PREFERENCES_NAME = "StongStonePref";
-    private static final String CURRENT_SONG = "CurrentSongPref";
-    private SharedPreferences preferences;
-    
+    // indicates on current played song 
+	   
     //Getting the songs
     SongsManager plm;
     
@@ -79,16 +73,12 @@ public class Main extends Activity {
 		setContentView(R.layout.main);
 		
 		context = getApplicationContext();
-		
-		// bring back previous settings
-		preferences = getSharedPreferences(PREFERENCES_NAME, Activity.MODE_PRIVATE);
-		restorePreferences();
-		
+				
 		//get Display size
 		getDisplay();
 		
-		if(songService == null) Log("SongService is NULL");
 		songService = new Intent(context, SongService.class);
+		
 		
 		setLabel(); 
 				
@@ -106,16 +96,15 @@ public class Main extends Activity {
 	protected void onStart() {
 		super.onStart();
 		
-		restorePreferences();
 
 		updateSongs();
 		
 		// Set panel on last played Song
 		
-		Log("ONSTART = "+currentSong);
-		if (currentSong != -1)
+		Log("ONSTART = "+SongService.currentSong);
+		if (SongService.currentSong != -1)
 			{
-			songLabel.setText(songsList.get(currentSong).getTitle());
+			songLabel.setText(songsList.get(SongService.currentSong).getTitle());
 			openPanel(context);
 			}
 		
@@ -141,7 +130,7 @@ public class Main extends Activity {
 	        listView.setOnItemClickListener(new OnItemClickListener() {
 	          public void onItemClick(AdapterView<?> parent, View view,
 	              int position, long id) {
-	        	  powerButton(context, position);
+	        	  playSong(context, position);
 	          }
 	        });
 	        
@@ -172,7 +161,7 @@ public class Main extends Activity {
 				@Override
 				public void onClick(View v) {
 					
-					powerButton(context, currentSong);
+					powerButton(context, SongService.currentSong);
 					
 				}
 			});
@@ -184,11 +173,8 @@ public class Main extends Activity {
 			  
 			  Log("on UpdateSong songList = "+songsList.isEmpty());
 			  
-			  if (currentSong != -1 && !songsList.isEmpty()) {
+			  if (SongService.currentSong != -1 && !songsList.isEmpty()) {
 				  
-				  Song song = songsList.get(currentSong);
-				  songsList = plm.ListAllSongs(context);
-				 currentSong = songsList.indexOf(song);
 				 				 
 				 updateListView();
 			  
@@ -268,75 +254,31 @@ public class Main extends Activity {
 	   
 	   
 	   public static void playSong(Context context,int id)
-	   {
-		// for the record
-		   currentSong = id;
-		   currentSong = (currentSong != -1) ? currentSong : 0;
-		  
-		   songLabel.setText(songsList.get(currentSong).getTitle());
-		   Log("PLAYSONG = "+currentSong);
+	   {  
+		   songLabel.setText(songsList.get(id).getTitle());
+		   Log("PLAYSONG = "+id);
 		   
+		   SongService.currentSong = id;
 			//SongSerice
 		   songService.setAction(SongService.ACTION_PLAY);
-		   context.startService(songService);
-		   
+		   context.startService(songService);	   
 	   }
 	   
 	   public static void powerButton(Context context, int id)
 	   {
-		   if (id != currentSong || id == -1)
-		   {
-			   openPanel(context);
-			   playSong(context, id);
-		   }
-		   else
-		   {
-			   switchSong(context);
-		   }
+		   songService.setAction(SongService.ACTION_FLOW);
+			context.startService(songService); 
 	   }
 	   
 	   public static void switchSong(Context context) 
 	   {
-		   Log("SWITCHSONG = "+currentSong);
 			songService.setAction(SongService.ACTION_PAUSE);
 			context.startService(songService); 
 	   }
 	  
-	   public static void nextSong(Context context) {
-			// Check if last song or not   
-			if (++currentSong >= songsList.size()) {
-				currentSong = -1;
-			} else {
-				playSong(context,currentSong);
-			}
-		}
-	   
-		public static void prevSong(Context context) {
-			if (--currentSong >= 0) {
-				playSong(context, currentSong);
-			} else {
-				playSong(context, songsList.size()-1);
-			}
-		}
-	   
-	   /* Preferences functions*/
-	   
-	   private void savePreferences() {
-		    SharedPreferences.Editor preferencesEditor = preferences.edit();
-		    preferencesEditor.putInt(CURRENT_SONG, currentSong);
-		    preferencesEditor.commit();
-		}
-	   
-	   private void restorePreferences()
-	   {
-		   currentSong = preferences.getInt(CURRENT_SONG, -1);
-		   Log.i("Songstone", "RESTORE = "+currentSong);
-	   }
 
-	   
 	   @Override
 	protected void onDestroy() {
-		savePreferences();
 		super.onDestroy();
 		 mAudioManager.unregisterMediaButtonEventReceiver(
 	                mRemoteControlResponder);

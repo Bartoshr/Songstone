@@ -49,7 +49,7 @@ public class SongService extends Service {
     Notification note;
 	   
     // Service own current indicator
-    int serviceCurrentSong = -1;
+    public static int currentSong = -1;
     
 	// real player
     MediaPlayer mp = new MediaPlayer();
@@ -57,11 +57,7 @@ public class SongService extends Service {
     // Foreground
     boolean isForegroundStarted = false;
     
-    //Animation
-    static boolean isLeftArrowPressed = false;
-    static boolean isRightArrowPressed = false;
-    public static AnimationDrawable left_arrow_animation;
-    public static AnimationDrawable right_arrow_animation;
+
     
     public SongService() {
 		Main.Log("SONGSEVICE");
@@ -85,18 +81,16 @@ public class SongService extends Service {
     	
     	 if (action.equals(ACTION_PLAY)) {
     		 Main.Log("ACTION_PLAY");
-             playSong(Main.currentSong);
+             playSong(currentSong);
          }else if(action.equals(ACTION_PAUSE)) {
         	 Main.Log("ACTION_PAUSE");
              switchState();
          }else if (action.equals(ACTION_NEXT)) {
         	 Main.Log("ACTION_NEXT");
-        	 Main.nextSong(context);
-        	 isRightArrowPressed = true;
+        	 nextSong();
          }else if (action.equals(ACTION_PREV)) {
         	 Main.Log("ACTION_PREV");
-        	 Main.prevSong(context);
-        	 isLeftArrowPressed = true;
+        	 prevSong();
          }else if (action.equals(ACTION_FLOW)) {
         	 Main.Log("ACTION_FLOW");
         	 flow();
@@ -111,70 +105,20 @@ public class SongService extends Service {
 		ImageView aniView = new ImageView(this);
 		
 	     aniView.setBackgroundResource(R.drawable.left_arrow_animation);
-	     left_arrow_animation = (AnimationDrawable) aniView.getBackground();
 	     
 	     aniView.setBackgroundResource(R.drawable.right_arrow_animation);
-	     right_arrow_animation = (AnimationDrawable) aniView.getBackground();
 	}
 	
-	public static void startLeftAnimation()
-	{
-		if(isLeftArrowPressed) {
-        new Thread(new Runnable() {
-            public void run() {
-            	Main.Log("ANIMATION_RUN");
-                int frameIndex = 0;
-                boolean mRun = true;
-                while (mRun) {
-                    ++frameIndex;
-                    SystemClock.sleep(100);
-                    BitmapDrawable frame = (BitmapDrawable) left_arrow_animation.getFrame(frameIndex);
-                    noteView.setImageViewBitmap(R.id.imagenotileft, frame.getBitmap());
-                    noteManager.notify(noteID, noteBuilder.build());
-                    if (frameIndex >= left_arrow_animation.getNumberOfFrames()-1) {
-                        break;
-                    }
-                }
-                
-            }
-          }).start();
-		}
-		isLeftArrowPressed = false;
-	}
-	
-	
-	public static void startRightAnimation()
-	{
-		if(isRightArrowPressed) {
-        new Thread(new Runnable() {
-            public void run() {
-            	Main.Log("ANIMATION_RUN");
-                int frameIndex = 0;
-                boolean mRun = true;
-                while (mRun) {
-                    ++frameIndex;
-                    SystemClock.sleep(100);
-                    BitmapDrawable frame = (BitmapDrawable) right_arrow_animation.getFrame(frameIndex);
-                    noteView.setImageViewBitmap(R.id.imagenotiright, frame.getBitmap());
-                    noteManager.notify(noteID, noteBuilder.build());
-                    if (frameIndex >= right_arrow_animation.getNumberOfFrames()-1) {
-                        break;
-                    }
-                }
 
-            }
-          }).start();
-		}
-		isRightArrowPressed = false;
-	}
+	
+
 	
 	
 	   public void playSong(int id)
 	   {
 		   // just in case
 		   id = (id != -1) ? id : 0;
-		   Main.currentSong = id;
-		   serviceCurrentSong = id;
+		   currentSong = id;
 		   
 		   try {
 			mp.reset();
@@ -184,11 +128,13 @@ public class SongService extends Service {
 	  	  	
 		    if(isForegroundStarted)startForeground(1337, note);
 		    updateNote(id);
+		    updatePanel(id);
 	  	  	
+			Main.openPanel(getApplicationContext());
+		    
 	  	  	mp.setOnCompletionListener(new OnCompletionListener() {
 				public void onCompletion(MediaPlayer arg0) {
-					Main.nextSong(getApplicationContext());
-					isRightArrowPressed = true;
+					nextSong();
 				}
 			});
 	  	  	
@@ -207,12 +153,29 @@ public class SongService extends Service {
 		}
 	   }
 	   
+	   public void nextSong() {
+			// Check if last song or not   
+			if (++currentSong >= Main.songsList.size()) {
+				currentSong = -1;
+			} else {
+				playSong(currentSong);
+			}
+		}
+	   
+		public void prevSong() {
+			if (--currentSong >= 0) {
+				playSong(currentSong);
+			} else {
+				playSong(Main.songsList.size()-1);
+			}
+		}
+	   
 	   private void flow()
 	   {
-		   if (Main.currentSong != serviceCurrentSong 
-				   || Main.currentSong == -1)
+		   if (currentSong != currentSong 
+				   || currentSong == -1)
 		   {
-			   playSong(Main.currentSong);
+			   playSong(currentSong);
 		   }
 		   else
 		   {
@@ -284,10 +247,14 @@ public class SongService extends Service {
 			
 			noteView.setTextViewText(R.id.title, title);
 			
-			startLeftAnimation();
-			startRightAnimation();
 			
 			 noteManager.notify(noteID, noteBuilder.build());
+		}
+		
+		private void updatePanel(int id)
+		{
+			String title = Main.getSongTitle(id);
+			Main.songLabel.setText(title);
 		}
 		
 	   public void switchState() 
