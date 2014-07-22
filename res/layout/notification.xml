@@ -3,8 +3,10 @@
     android:layout_width="match_parent"
     android:layout_height="60dp">
  
-    <ImageView
+    <ImageButton
         android:id="@+id/imagenotileft"
+        android:background="@drawable/left_arrow_selector"
+        android:focusable="true"
         android:layout_width="0dp"
         android:layout_weight="2"
         android:layout_height="match_parent"/>
@@ -18,8 +20,10 @@
         android:layout_height="match_parent"/>
  
 
-    <ImageView
+    <ImageButton
         android:id="@+id/imagenotiright"
+        android:background="@drawable/right_arrow_selector"
+        android:focusable="true"
         android:layout_width="0dp"
         android:layout_weight="2"
         android:layout_height="match_parent"/>

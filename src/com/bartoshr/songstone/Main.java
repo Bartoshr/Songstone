@@ -35,6 +35,7 @@ import android.view.ViewGroup.LayoutParams;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.BaseAdapter;
+import android.widget.EditText;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -56,12 +57,10 @@ public class Main extends Activity {
 	
 	private AudioManager mAudioManager;
     private ComponentName mRemoteControlResponder;
-	
+
     //Display parameters
     public static Display display;
     public static Point displaySize;
-    
-    // indicates on current played song 
 	   
     //Getting the songs
     SongsManager plm;
@@ -78,7 +77,6 @@ public class Main extends Activity {
 		getDisplay();
 		
 		songService = new Intent(context, SongService.class);
-		
 		
 		setLabel(); 
 				
@@ -117,7 +115,7 @@ public class Main extends Activity {
                 mRemoteControlResponder);
 	}
 
-	
+	  
 
 	public void setListView()
 	   {
@@ -139,8 +137,7 @@ public class Main extends Activity {
 				@Override
 				public boolean onItemLongClick(AdapterView<?> parent, View view,
 						int position, long id) {
-					Log("Long press on "+position);
-					openDialog();
+					openDialog(position);
 					return false;
 				}
 			});
@@ -304,8 +301,7 @@ public class Main extends Activity {
 		return super.onOptionsItemSelected(item);
 	}
 
-
-	public void openDialog()
+	public void openDialog(int position)
 	{
 		    FragmentTransaction ft = getFragmentManager().beginTransaction();
 		    Fragment prev = getFragmentManager().findFragmentByTag("dialog");
@@ -313,10 +309,16 @@ public class Main extends Activity {
 		        ft.remove(prev);
 		    }
 		    ft.addToBackStack(null);
-
+	    
 		    // Create and show the dialog.
 		    SongDialog newFragment = SongDialog.newInstance(0);
+
+		    Tagger tag = new Tagger(getSongPath(position));
+		    newFragment.setTag(tag);
+
 		    newFragment.show(ft, "dialog");
+		    
+
 	}
 	
 	// Just for a while
@@ -326,5 +328,11 @@ public class Main extends Activity {
 	}
 
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }
 	
 }

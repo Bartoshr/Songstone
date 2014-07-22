@@ -69,7 +69,6 @@ public class SongService extends Service {
     @Override
 	public void onCreate() {
 		setForeground();
-		setAnimation();
 		super.onCreate();
 	}
 
@@ -99,20 +98,8 @@ public class SongService extends Service {
     	return Service.START_NOT_STICKY;
     }
 
-	public void setAnimation()
-	{
-		Main.Log("SET_ANIMATION");
-		ImageView aniView = new ImageView(this);
-		
-	     aniView.setBackgroundResource(R.drawable.left_arrow_animation);
-	     
-	     aniView.setBackgroundResource(R.drawable.right_arrow_animation);
-	}
-	
 
-	
 
-	
 	
 	   public void playSong(int id)
 	   {
@@ -190,8 +177,8 @@ public class SongService extends Service {
 			
 			noteView = new RemoteViews(getPackageName(),
 	                R.layout.notification);
-			noteView.setImageViewResource(R.id.imagenotileft,R.drawable.arrow_left);
-		    noteView.setImageViewResource(R.id.imagenotiright,R.drawable.arrow_right);
+			//noteView.setImageViewResource(R.id.imagenotileft,R.drawable.arrow_left);
+		   // noteView.setImageViewResource(R.id.imagenotiright,R.drawable.arrow_right);
 		    noteView.setTextViewText(R.id.title,"Mr. Sandman - The Chordettes");
 			
 		    setNoteButtons();

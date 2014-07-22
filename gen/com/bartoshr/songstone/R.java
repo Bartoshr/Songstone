@@ -25,17 +25,17 @@ public final class R {
     }
     public static final class drawable {
         public static final int arrow_left=0x7f020000;
-        public static final int arrow_left_orange=0x7f020001;
+        public static final int arrow_left_hover=0x7f020001;
         public static final int arrow_right=0x7f020002;
-        public static final int arrow_right_orange=0x7f020003;
+        public static final int arrow_right_hover=0x7f020003;
         public static final int gradient_bg=0x7f020004;
         public static final int gradient_bg_hover=0x7f020005;
         public static final int ic_launcher=0x7f020006;
-        public static final int left_arrow_animation=0x7f020007;
+        public static final int left_arrow_selector=0x7f020007;
         public static final int list_selector=0x7f020008;
         public static final int panel_dark=0x7f020009;
         public static final int panel_light=0x7f02000a;
-        public static final int right_arrow_animation=0x7f02000b;
+        public static final int right_arrow_selector=0x7f02000b;
         public static final int songstone_edit_text_holo_light=0x7f02000c;
         public static final int songstone_textfield_activated_holo_light=0x7f02000d;
         public static final int songstone_textfield_default_holo_light=0x7f02000e;
