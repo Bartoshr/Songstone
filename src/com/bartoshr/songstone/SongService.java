@@ -249,9 +249,11 @@ public class SongService extends Service {
 		   if(mp.isPlaying())
 		   {
 			   mp.pause();
+               stopForeground(true);
 		   	}
 		   else {
-			  mp.start(); 
+			  mp.start();
+               startForeground(1337,note);
 		   }
 	   }
 	   

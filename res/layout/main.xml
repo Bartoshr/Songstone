@@ -36,6 +36,7 @@
             android:layout_alignParentLeft="true"
             android:layout_centerVertical="true"
             android:layout_marginLeft="32dp"
+            android:layout_marginRight="16dp"
             android:text="SongTitle"
             android:textAppearance="?android:attr/textAppearanceLarge" />
 
