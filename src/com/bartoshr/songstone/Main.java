@@ -1,42 +1,31 @@
 package com.bartoshr.songstone;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.SystemClock;
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.Dialog;
+import android.bluetooth.BluetoothAdapter;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Point;
 import android.graphics.Typeface;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.View.OnLongClickListener;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.BaseAdapter;
-import android.widget.EditText;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -64,14 +53,18 @@ public class Main extends Activity {
 	   
     //Getting the songs
     SongsManager plm;
-    
     Context context;
-    
+
+    //Bluetooth
+    BluetoothAdapter bluetoothAdapter;
+
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
 		
 		context = getApplicationContext();
+
+        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 				
 		//get Display size
 		getDisplay();
@@ -293,7 +286,10 @@ public class Main extends Activity {
 	            break;
 	        case R.id.action_settings:
 	        	 Log("ACTION_SETTINGS");
-	            break;	          
+	            break;
+                case R.id.action_bluetooth:
+                 turnOnBluetooth();
+                break;
 	        default:
 	 
 	        }
@@ -320,6 +316,12 @@ public class Main extends Activity {
 		    
 
 	}
+
+    public void turnOnBluetooth()
+    {
+        if(bluetoothAdapter.isEnabled()) bluetoothAdapter.disable();
+        else bluetoothAdapter.enable();
+    }
 	
 	// Just for a while
 	public static void Log(String s)
