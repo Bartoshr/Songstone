@@ -28,6 +28,7 @@ import android.webkit.WebView.FindListener;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RemoteViews;
+import android.widget.Toast;
 
 public class SongService extends Service {
 
@@ -45,6 +46,7 @@ public class SongService extends Service {
 	static NotificationCompat.Builder noteBuilder;
 	static NotificationManager noteManager;
 	static RemoteViews noteView;
+    static RemoteViews bigNoteView;
 	static int noteID = 1337;
     Notification note;
 	   
@@ -77,6 +79,8 @@ public class SongService extends Service {
    
     	String action = intent.getAction();
     	Context context = getApplicationContext();
+
+       //Toast.makeText(context, " "+context.getPackageName(), Toast.LENGTH_SHORT).show();
     	
     	 if (action.equals(ACTION_PLAY)) {
     		 Main.Log("ACTION_PLAY");
@@ -113,7 +117,7 @@ public class SongService extends Service {
 			mp.prepare();
 	  	  	mp.start();
 	  	  	
-		    if(isForegroundStarted)startForeground(1337, note);
+		    if(isForegroundStarted)startForeground(noteID, note);
 		    updateNote(id);
 		    updatePanel(id);
 	  	  	
@@ -174,13 +178,19 @@ public class SongService extends Service {
 		private void setForeground()
 		{
 			isForegroundStarted = true;
-			
+
+            Intent intent = new Intent(getApplicationContext(), SongService.class);
+            intent.setAction(ACTION_NEXT);
+            PendingIntent pendingIntent =
+                    PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
 			noteView = new RemoteViews(getPackageName(),
 	                R.layout.notification);
-			//noteView.setImageViewResource(R.id.imagenotileft,R.drawable.arrow_left);
-		   // noteView.setImageViewResource(R.id.imagenotiright,R.drawable.arrow_right);
 		    noteView.setTextViewText(R.id.title,"Mr. Sandman - The Chordettes");
-			
+
+            bigNoteView =  new RemoteViews(getPackageName(),
+                    R.layout.big_notification);
+
 		    setNoteButtons();
    		
 			noteManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
@@ -190,11 +200,12 @@ public class SongService extends Service {
 	        note = noteBuilder
 	                .setSmallIcon(R.drawable.ic_launcher)
 	                .setWhen(System.currentTimeMillis())
-	                .setAutoCancel(false)
 	                .setContentTitle("Songstone")
 	                .setContentText("This text")
 	                .setContent(noteView)
 	                .build();
+
+            note.bigContentView = bigNoteView;
 		}
 	
 		
@@ -206,13 +217,19 @@ public class SongService extends Service {
 			PendingIntent pendingIntent = 
 					PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 			noteView.setOnClickPendingIntent(R.id.imagenotiright, pendingIntent);
+            bigNoteView.setOnClickPendingIntent(R.id.imagenotiright, pendingIntent);
 			
 			
 			intent.setAction(ACTION_PREV);
 			pendingIntent = 
 					PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 			noteView.setOnClickPendingIntent(R.id.imagenotileft, pendingIntent);
-			
+            bigNoteView.setOnClickPendingIntent(R.id.imagenotileft, pendingIntent);
+
+            intent.setAction(ACTION_PAUSE);
+            pendingIntent =
+                    PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+            bigNoteView.setOnClickPendingIntent(R.id.close, pendingIntent);
 			
 			intent = new Intent(getApplicationContext(), Main.class);
 			intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
@@ -220,22 +237,23 @@ public class SongService extends Service {
 			pendingIntent = 
 					PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 	        noteView.setOnClickPendingIntent(R.id.title, pendingIntent);
+            bigNoteView.setOnClickPendingIntent(R.id.title, pendingIntent);
 		}
 	   
 		private void updateNote(int id)
 		{
 			String title = Main.getSongTitle(id);
-				
-			note = noteBuilder
-		    .setContentTitle(title)
-		    .setContentText("is played")
-		    .setAutoCancel(false)
-		    .setWhen(System.currentTimeMillis()).build();
-			
+            String artist = Main.getSongArtist(id);
+
 			noteView.setTextViewText(R.id.title, title);
-			
-			
-			 noteManager.notify(noteID, noteBuilder.build());
+            bigNoteView.setTextViewText(R.id.title, title);
+            bigNoteView.setTextViewText(R.id.close, artist);
+
+            note.bigContentView = bigNoteView;
+
+			//noteManager.notify(noteID, noteBuilder.build());
+            stopForeground(true);
+            startForeground(noteID, note);
 		}
 		
 		private void updatePanel(int id)
@@ -253,7 +271,7 @@ public class SongService extends Service {
 		   	}
 		   else {
 			  mp.start();
-               startForeground(1337,note);
+               startForeground(noteID,note);
 		   }
 	   }
 	   

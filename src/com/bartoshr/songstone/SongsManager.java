@@ -49,14 +49,18 @@ public class SongsManager {
                             String songname = cursor
                                     .getString(cursor
                                             .getColumnIndex(MediaStore.Audio.Media.TITLE));
-                            
+
+                            String artist = cursor
+                                    .getString(cursor
+                                             .getColumnIndex(MediaStore.Audio.Media.ARTIST));
+
                             songname = songname.replaceAll("\\(.*?\\)", "");
                             songname = songname.replaceAll("\\W*\\d+( |. |.)", "");
                            // songname = songname.substring(0, songname.length()-3);
                            
                             Main.Log(" MEDIA DATA"+fullpath);
                             
-                            Song song = new Song(songname, fullpath);
+                            Song song = new Song(songname, fullpath, artist);
                             
                             // Adding each song to SongList
                             songsList.add(song);

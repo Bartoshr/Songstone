@@ -213,6 +213,13 @@ public class Main extends Activity {
 	  {
 		  return songsList.get(id).getPath();
 	  }
+
+
+     public static String getSongArtist(int id)
+    {
+        return songsList.get(id).getArtist();
+    }
+
 	  
 	  // Metrics funtions - get display parameters
 	  

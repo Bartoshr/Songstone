@@ -5,7 +5,7 @@
     android:versionName="1.0" >
 
     <uses-sdk
-        android:minSdkVersion="13"
+        android:minSdkVersion="16"
         android:targetSdkVersion="18" />
 
     <uses-permission android:name="android.permission.BLUETOOTH" />
@@ -31,7 +31,6 @@
             	<action android:name="com.bartoshr.songstone.ACTION_NEXT"/>
             	<action android:name="com.bartoshr.songstone.ACTION_PREV"/>
             	<action android:name="com.bartoshr.songstone.ACTION_FLOW"/>
-            	<category android:name="android.intent.category.DEFAULT" />
    			 </intent-filter>
 		</receiver>
                 
