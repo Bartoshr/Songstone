@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.util.Log;
 
 public class SongDialog extends DialogFragment {
 	
@@ -42,11 +43,14 @@ public class SongDialog extends DialogFragment {
 			dialogTitle = (EditText)v.findViewById(R.id.title);
             dialogTitle.setText(tag.getTitle());
 
+
+
             applyButton = (Button)v.findViewById(R.id.applyButton);
             applyButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     tag.setTitle(dialogTitle.getText().toString());
+                    Log.i("Songstone","dialogTitle length = "+dialogTitle.getText().toString().length());
                     tag.setArtist(dialogArtist.getText().toString());
                     tag.save();
                 }

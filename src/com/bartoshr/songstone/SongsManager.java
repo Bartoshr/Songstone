@@ -57,6 +57,7 @@ public class SongsManager {
                             songname = songname.replaceAll("\\(.*?\\)", "");
                             songname = songname.replaceAll("\\W*\\d+( |. |.)", "");
                            // songname = songname.substring(0, songname.length()-3);
+                            songname.trim();
                            
                             Main.Log(" MEDIA DATA"+fullpath);
                             

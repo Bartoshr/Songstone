@@ -197,6 +197,7 @@ public class SongService extends Service {
 			
 			noteBuilder = new NotificationCompat.Builder(
 	                this);
+
 	        note = noteBuilder
 	                .setSmallIcon(R.drawable.ic_launcher)
 	                .setWhen(System.currentTimeMillis())
@@ -249,11 +250,9 @@ public class SongService extends Service {
             bigNoteView.setTextViewText(R.id.title, title);
             bigNoteView.setTextViewText(R.id.close, artist);
 
-            note.bigContentView = bigNoteView;
+            //note.bigContentView = bigNoteView;
 
-			//noteManager.notify(noteID, noteBuilder.build());
-            stopForeground(true);
-            startForeground(noteID, note);
+			noteManager.notify(noteID, note);
 		}
 		
 		private void updatePanel(int id)

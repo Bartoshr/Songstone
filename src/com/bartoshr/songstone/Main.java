@@ -1,5 +1,10 @@
 package com.bartoshr.songstone;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import android.media.AudioManager;
 import android.net.Uri;
@@ -30,6 +35,7 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.AdapterView.OnItemClickListener;
+import java.io.File;
 
 public class Main extends Activity {
 
@@ -52,7 +58,6 @@ public class Main extends Activity {
     public static Point displaySize;
 	   
     //Getting the songs
-    SongsManager plm;
     Context context;
 
     //Bluetooth
@@ -159,7 +164,6 @@ public class Main extends Activity {
 	  
 	  public void updateSongs()
 	  {
-			  plm = new SongsManager();
 			  
 			  Log("on UpdateSong songList = "+songsList.isEmpty());
 			  
@@ -169,12 +173,14 @@ public class Main extends Activity {
 				 updateListView();
 			  
 			  } else if(listView != null) {
-				  
-				  songsList = plm.ListAllSongs(context);
+
+                  SongsFinder finder = new SongsFinder("/storage/sdcard0/Music");
+				  songsList = finder.songs;
 				  updateListView();
 				  
 			  } else {
-				  songsList = plm.ListAllSongs(context);
+                  SongsFinder finder = new SongsFinder("/storage/sdcard0/Music");
+                  songsList = finder.songs;
 			  }
 			  
 			  Log("UPDATE_LIST - "+songsList.size());
@@ -187,20 +193,7 @@ public class Main extends Activity {
 		  ((BaseAdapter)listView.getAdapter()).notifyDataSetChanged();
 	  }
 	  
-	  public void refresh()
-	  {
-		  sendBroadcast(new Intent(Intent.ACTION_MEDIA_MOUNTED,
-				  Uri.parse("file://" + Environment.getExternalStorageDirectory())));
-		  
-		  SystemClock.sleep(1000);
-		  
-		  plm = new SongsManager();
-		  songsList = plm.ListAllSongs(context);
-		  Log("REFRESH - "+songsList.size());
-		  
-		  updateListView();
-	  }
-	  
+
 	  // Songlist info functions 
 	  
 	  public static String getSongTitle(int id)
@@ -240,7 +233,7 @@ public class Main extends Activity {
 	  
 	   public static void openPanel(Context context)
 	   {		  
-		   layout.setVisibility(0);
+		   layout.setVisibility(View.VISIBLE);
 
 		   LayoutParams lp = (LayoutParams) listView.getLayoutParams();
 	       lp.height = displaySize.y-scale(context, 125);
@@ -260,7 +253,9 @@ public class Main extends Activity {
 		   songService.setAction(SongService.ACTION_PLAY);
 		   context.startService(songService);	   
 	   }
-	   
+
+
+        // Start playnig songs in alphabetical order
 	   public static void powerButton(Context context, int id)
 	   {
 		   songService.setAction(SongService.ACTION_FLOW);
@@ -320,14 +315,50 @@ public class Main extends Activity {
 		    newFragment.setTag(tag);
 
 		    newFragment.show(ft, "dialog");
-		    
-
 	}
 
     public void turnOnBluetooth()
     {
         if(bluetoothAdapter.isEnabled()) bluetoothAdapter.disable();
         else bluetoothAdapter.enable();
+    }
+
+    // refresh should be triggered only by user
+    public void refresh()
+    {
+       // sendBroadcast(new Intent(Intent.ACTION_MEDIA_MOUNTED,
+        //        Uri.parse("file://" + Environment.getExternalStorageDirectory())));
+
+        //SystemClock.sleep(1000);
+
+        SongsFinder finder = new SongsFinder("/storage/");
+        songsList = finder.songs;
+        Log("REFRESH - "+songsList.size());
+
+        updateListView();
+
+        moveToFolder(Environment.getExternalStorageDirectory()+File.separator+"Music");
+    }
+
+    public void moveToFolder(String path)
+    {
+        for (Song song : songsList)
+        {
+            if(song.getPath().contains(path)) continue;
+
+            try{
+                File source = new File(song.getPath());
+                File destination = new File(path+ File.separator + source.getName());
+
+                move(source,destination);
+
+            }catch(Exception e){
+                e.printStackTrace();
+            }
+
+        }
+
+        Log("File Transfer completed");
     }
 	
 	// Just for a while
@@ -336,6 +367,40 @@ public class Main extends Activity {
 		Log.i("Songstone", s);
 	}
 
+
+    public static void move(File afile, File bfile)
+    {
+        InputStream inStream = null;
+        OutputStream outStream = null;
+
+        try{
+
+
+            inStream = new FileInputStream(afile);
+            outStream = new FileOutputStream(bfile);
+
+            byte[] buffer = new byte[1024];
+
+            int length;
+            //copy the file content in bytes
+            while ((length = inStream.read(buffer)) > 0){
+
+                outStream.write(buffer, 0, length);
+
+            }
+
+            inStream.close();
+            outStream.close();
+
+            //delete the original file
+            afile.delete();
+
+            System.out.println("File is copied successful!");
+
+        }catch(IOException e){
+            e.printStackTrace();
+        }
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

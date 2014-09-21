@@ -28,7 +28,10 @@ public class Song {
 	public String getTitle() { return this.title; }
 	public String getPath() { return this.path; }
     public String getArtist() { return this.artist; }
-	
 
-	
+
+    @Override
+    public String toString() {
+        return getTitle();
+    }
 }
