@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+
+import android.graphics.Path;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Bundle;
@@ -62,6 +64,8 @@ public class Main extends Activity {
 
     //Bluetooth
     BluetoothAdapter bluetoothAdapter;
+
+    public String songDirecory = "/storage/sdcard0/Music";
 
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -174,12 +178,12 @@ public class Main extends Activity {
 			  
 			  } else if(listView != null) {
 
-                  SongsFinder finder = new SongsFinder("/storage/sdcard0/Music");
+                  SongsFinder finder = new SongsFinder(songDirecory);
 				  songsList = finder.songs;
 				  updateListView();
 				  
 			  } else {
-                  SongsFinder finder = new SongsFinder("/storage/sdcard0/Music");
+                  SongsFinder finder = new SongsFinder(songDirecory);
                   songsList = finder.songs;
 			  }
 			  
@@ -326,10 +330,6 @@ public class Main extends Activity {
     // refresh should be triggered only by user
     public void refresh()
     {
-       // sendBroadcast(new Intent(Intent.ACTION_MEDIA_MOUNTED,
-        //        Uri.parse("file://" + Environment.getExternalStorageDirectory())));
-
-        //SystemClock.sleep(1000);
 
         SongsFinder finder = new SongsFinder("/storage/");
         songsList = finder.songs;
@@ -337,7 +337,7 @@ public class Main extends Activity {
 
         updateListView();
 
-        moveToFolder(Environment.getExternalStorageDirectory()+File.separator+"Music");
+        moveToFolder(songDirecory);
     }
 
     public void moveToFolder(String path)
@@ -351,6 +351,7 @@ public class Main extends Activity {
                 File destination = new File(path+ File.separator + source.getName());
 
                 move(source,destination);
+                song.setPath(destination.getPath());
 
             }catch(Exception e){
                 e.printStackTrace();
