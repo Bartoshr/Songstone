@@ -12,6 +12,7 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
 
 
     <application
@@ -28,6 +29,7 @@
         		<action android:name="android.intent.action.MEDIA_MOUNTED" />
         		<action android:name="com.bartoshr.songstone.ACTION_PLAY" />
             	<action android:name="com.bartoshr.songstone.ACTION_PAUSE" />
+                <action android:name="com.bartoshr.songstone.ACTION_SWITCH" />
             	<action android:name="com.bartoshr.songstone.ACTION_NEXT"/>
             	<action android:name="com.bartoshr.songstone.ACTION_PREV"/>
             	<action android:name="com.bartoshr.songstone.ACTION_FLOW"/>

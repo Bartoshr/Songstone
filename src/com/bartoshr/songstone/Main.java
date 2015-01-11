@@ -7,12 +7,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 
-import android.graphics.Path;
 import android.media.AudioManager;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
-import android.os.SystemClock;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.app.Fragment;
@@ -22,6 +18,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Point;
 import android.graphics.Typeface;
+import android.telephony.PhoneStateListener;
+import android.telephony.TelephonyManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
@@ -65,13 +63,18 @@ public class Main extends Activity {
     //Bluetooth
     BluetoothAdapter bluetoothAdapter;
 
-    public String songDirecory = "/storage/sdcard0/Music";
+     //public String songDirecory = "/storage/sdcard0/Music";
+    public String songDirecory = "/sdcard"; // for emulator
 
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
-		
-		context = getApplicationContext();
+
+        context = getApplicationContext();
+
+        TelephonyManager telephonyManager =
+                (TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
+        telephonyManager.listen(new CallListener(context),PhoneStateListener.LISTEN_CALL_STATE);
 
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 				
@@ -95,7 +98,6 @@ public class Main extends Activity {
 	@Override
 	protected void onStart() {
 		super.onStart();
-		
 
 		updateSongs();
 		
@@ -160,7 +162,7 @@ public class Main extends Activity {
 				@Override
 				public void onClick(View v) {
 					
-					powerButton(context, SongService.currentSong);
+					powerButton(context);
 					
 				}
 			});
@@ -259,8 +261,13 @@ public class Main extends Activity {
 	   }
 
 
+        public static void pause(Context context) {
+            songService.setAction(SongService.ACTION_PAUSE);
+            context.startService(songService);
+        }
+
         // Start playnig songs in alphabetical order
-	   public static void powerButton(Context context, int id)
+	   public static void powerButton(Context context)
 	   {
 		   songService.setAction(SongService.ACTION_FLOW);
 			context.startService(songService); 
@@ -268,7 +275,7 @@ public class Main extends Activity {
 	   
 	   public static void switchSong(Context context) 
 	   {
-			songService.setAction(SongService.ACTION_PAUSE);
+			songService.setAction(SongService.ACTION_SWITCH);
 			context.startService(songService); 
 	   }
 	  

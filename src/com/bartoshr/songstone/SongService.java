@@ -41,6 +41,7 @@ public class SongService extends Service {
     public static final String ACTION_NEXT = "com.bartoshr.songstone.ACTION_NEXT";
 	public static final String ACTION_PREV="com.bartoshr.songstone.ACTION_PREV";
 	public static final String ACTION_FLOW="com.bartoshr.songstone.ACTION_FLOW";
+    public static final String ACTION_SWITCH="com.bartoshr.songstone.ACTION_SWITCH";
 	
 	//Notifications stuff
 	static NotificationCompat.Builder noteBuilder;
@@ -87,6 +88,9 @@ public class SongService extends Service {
              playSong(currentSong);
          }else if(action.equals(ACTION_PAUSE)) {
         	 Main.Log("ACTION_PAUSE");
+             pause();
+         }else if(action.equals(ACTION_SWITCH)) {
+             Main.Log("ACTION_SWITCH");
              switchState();
          }else if (action.equals(ACTION_NEXT)) {
         	 Main.Log("ACTION_NEXT");
@@ -227,7 +231,7 @@ public class SongService extends Service {
 			noteView.setOnClickPendingIntent(R.id.imagenotileft, pendingIntent);
             bigNoteView.setOnClickPendingIntent(R.id.imagenotileft, pendingIntent);
 
-            intent.setAction(ACTION_PAUSE);
+            intent.setAction(ACTION_SWITCH);
             pendingIntent =
                     PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
             bigNoteView.setOnClickPendingIntent(R.id.close, pendingIntent);
@@ -273,6 +277,14 @@ public class SongService extends Service {
                startForeground(noteID,note);
 		   }
 	   }
+
+       public void pause(){
+           if (mp.isPlaying())
+           {
+               mp.pause();
+               stopForeground(true);
+           }
+       }
 	   
 	   @Override
 	public void onDestroy() {
