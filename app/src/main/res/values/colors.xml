@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="flush_orange">#FF7E00</color>
+    <color name="pizzaz">#FF9400</color>
+    <color name="yellow_sea">#FFAC03</color>
+
+    <color name="walter_white">#fff</color>
+    <color name="white">#fff3f3f3</color>
+    
+    <color name="black">#222222</color>
+    <color name="gray">#ff5b5b5b</color>
+
+
+
+</resources>
