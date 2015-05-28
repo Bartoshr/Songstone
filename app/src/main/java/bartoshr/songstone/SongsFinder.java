@@ -1,9 +1,11 @@
 package bartoshr.songstone;
 
 import android.util.Log;
+import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -14,9 +16,9 @@ public class SongsFinder {
 
    // private Tagger tag;
 
-    ArrayList<Song> songs;
-    ArrayList<File> folders;
-    ArrayList<File> files;
+    ArrayList<Song> songs = new ArrayList<Song>();
+    ArrayList<File> folders = new ArrayList<File>();
+    ArrayList<File> files = new ArrayList<File>();
 
     public SongsFinder(String directory) {
 
@@ -30,15 +32,16 @@ public class SongsFinder {
                     Log.d("Songstone","Hello");
             }
 
+
     }
 
 
-    public ArrayList<File> listFolders(File dir)
+    public ArrayList<File> listFolders(File dir) throws IOException
     {
         File[] matches = dir.listFiles(new FileFilter() {
             @Override
-            public boolean accept(File file) {
-                return file.isDirectory() && !file.isHidden() && "Android".compareTo(file.getName()) != 0;
+            public boolean accept(File file){
+                return file.isDirectory() && !isSymlink(file)  && !file.isHidden() && "Android".compareTo(file.getName()) != 0;
             }
         });
         ArrayList<File> result = new ArrayList<File>();
@@ -47,7 +50,7 @@ public class SongsFinder {
             result = new ArrayList<File>(Arrays.asList(matches));
 
             for (File file : matches) {
-                Log("Folder name: " + file.getName());
+                Log("Folder name: " + file.getAbsolutePath());
                 listFolders(file);
                 result.addAll(listFolders(file));
             }
@@ -103,20 +106,16 @@ public class SongsFinder {
             artist = artist.trim();
 
             Log("Processign "+title);
-
-
-
+            
             String path = file.getPath();
 
-            result.add(new Song(title ,path, artist));
+            result.add(new Song(title, path, artist));
         }
 
         Collections.sort(result, new SongComparator());
 
         return result;
     }
-
-
 
     public class SongComparator implements Comparator<Song> {
         @Override
@@ -131,10 +130,28 @@ public class SongsFinder {
         }
     }
 
+    public static boolean isSymlink(File file) {
+        try {
+
+            if (file == null)
+                throw new NullPointerException("File must not be null");
+            File canon;
+            if (file.getParent() == null) {
+                canon = file;
+            } else {
+                File canonDir = file.getParentFile().getCanonicalFile();
+                canon = new File(canonDir, file.getName());
+            }
+            return !canon.getCanonicalFile().equals(canon.getAbsoluteFile());
+        }catch (IOException e){
+            return true ;
+        }
+
+    }
 
     public void Log(String str)
     {
-        Log.i("Aperture", str);
+        Log.i("Songstone", str);
     }
 
 
