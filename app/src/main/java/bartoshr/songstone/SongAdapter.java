@@ -44,14 +44,17 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
 
     @Override
     public SongViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
-        LayoutInflater inflater = LayoutInflater.
+        final LayoutInflater inflater = LayoutInflater.
                 from(viewGroup.getContext());
                 //inflate(R.layout.list_item, viewGroup, false);
 
        // SongViewHolder holder = new SongViewHolder(itemView);
        // holder.vTitle.setTypeface(typeface);
 
-        SongViewHolder holder = new SongViewHolder(MaterialRippleLayout.on(inflater.inflate(R.layout.list_item, viewGroup, false))
+        // holder.vTitle.setTypeface(typeface);
+       // holder.cardView.setMinimumHeight(100);
+
+       SongViewHolder holder = new SongViewHolder(MaterialRippleLayout.on(inflater.inflate(R.layout.list_item, viewGroup, false))
                 .rippleOverlay(true)
                 .rippleAlpha(0.2f)
                 .rippleColor(0xFF585858)
@@ -59,21 +62,21 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
                 .create());
 
         holder.vTitle.setTypeface(typeface);
-        holder.cardView.setMinimumHeight(100);
+
         return holder;
     }
 
     public static class SongViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         protected TextView vTitle;
-        protected CardView cardView;
+       // protected CardView cardView;
 
 
         public SongViewHolder(View v) {
             super(v);
-            v.setOnClickListener(this);
             vTitle =  (TextView) v.findViewById(R.id.title);
-            cardView = (CardView) v.findViewById(R.id.card_view);
+            //cardView = (CardView) v.findViewById(R.id.card_view);
+            v.setOnClickListener(this);
         }
 
         @Override
