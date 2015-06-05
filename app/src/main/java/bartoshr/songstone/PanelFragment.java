@@ -7,7 +7,7 @@ import android.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
+import android.widget.TextView;
 
 
 public class PanelFragment extends Fragment {
@@ -29,7 +29,15 @@ public class PanelFragment extends Fragment {
         return inflater.inflate(R.layout.fragment_panel, container, false);
     }
 
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
+        Bundle bundle = this.getArguments();
+        String text = bundle.getString(MainActivity.BUNDLE_TITLE, "");
 
+        TextView textView = (TextView) getView().findViewById(R.id.panelView);
+        textView.setText(text);
 
+    }
 }

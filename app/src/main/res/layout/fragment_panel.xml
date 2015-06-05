@@ -9,7 +9,9 @@
         android:layout_height="5dp"
         android:background="@drawable/panel_dropshadow" />
 
-    <TextView android:layout_width="match_parent"
+    <TextView
+        android:id="@+id/panelView"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/gray"
         android:text="@string/default_fragment_panel"

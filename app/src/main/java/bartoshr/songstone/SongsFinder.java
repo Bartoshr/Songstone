@@ -29,10 +29,8 @@ public class SongsFinder {
             files = listFiles();
             songs = listSongs();
         } catch(Exception e) {
-                    Log.d("Songstone","Hello");
+                    Log.d("Songstone","SongsFinder exeption");
             }
-
-
     }
 
 
@@ -115,6 +113,18 @@ public class SongsFinder {
         Collections.sort(result, new SongComparator());
 
         return result;
+    }
+
+    public String getTitle(int position) {
+        return songs.get(position).getTitle();
+    }
+
+    public String getArtist(int position) {
+        return songs.get(position).getArtist();
+    }
+
+    public String getPath(int position) {
+        return songs.get(position).getPath();
     }
 
     public class SongComparator implements Comparator<Song> {

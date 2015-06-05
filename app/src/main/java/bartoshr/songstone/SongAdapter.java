@@ -21,14 +21,22 @@ import java.util.List;
 /**
  * Created by bartosh on 06.05.15.
  */
+
+interface OnItemClickListener {
+    public void onItemClick(int position);
+}
+
 public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder> {
 
     private List<Song> songList;
     protected Typeface typeface;
 
-    public SongAdapter(Context context, List<Song> songList) {
+    OnItemClickListener listener;
+
+    public SongAdapter(Context context, List<Song> songList, OnItemClickListener listener) {
         this.songList = songList;
         typeface = Typeface.createFromAsset(context.getAssets(), "fonts/ubuntu.ttf");
+        this.listener = listener;
     }
 
     @Override
@@ -62,6 +70,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
                 .create());
 
         holder.vTitle.setTypeface(typeface);
+        holder.listener = listener;
 
         return holder;
     }
@@ -69,7 +78,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
     public static class SongViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         protected TextView vTitle;
-       // protected CardView cardView;
+        private OnItemClickListener listener;
 
 
         public SongViewHolder(View v) {
@@ -81,7 +90,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
 
         @Override
         public void onClick(View view) {
-            Log.d("Songstone", "Hello listener");
+            listener.onItemClick(getAdapterPosition());
         }
     }
 }

@@ -5,11 +5,17 @@ import android.app.Activity;
 import android.app.Fragment;
 
 import android.content.ClipData;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.IBinder;
+import android.support.design.widget.Snackbar;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.Toolbar;
@@ -18,15 +24,13 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.nononsenseapps.filepicker.FilePickerActivity;
 
-import java.io.File;
 
-
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements OnItemClickListener, ServiceConnection {
 
     private static final String PANEL_FRAGMENT_TAG = "panel_fragment";
 
@@ -36,15 +40,20 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int FILE_CODE = 1;
 
+    public static final String BUNDLE_TITLE = "title";
+
     SongsFinder finder;
 
-    Toolbar toolbar;
-
+    // Views
+    private Toolbar toolbar;
     private TextView emptyView;
-
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
+    private LinearLayout parentView;
+
+    //Services
+    private SongService songService;
 
     String songDirecory;
 
@@ -53,34 +62,36 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Log.d("Songstone", "Work");
-
         preferences = getSharedPreferences(PREFERENCES_NAME, AppCompatActivity.MODE_PRIVATE);
         songDirecory = preferences.getString(PREFERENCES_DIR, "/storage/sdcard0/Music");
 
-        if((new File("/").canWrite())) Log.e("Songstone","Something wrong");
-
-
         finder = new SongsFinder(songDirecory);
 
+
+        // Setting views
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         emptyView = (TextView) findViewById(R.id.emptyView);
 
+        parentView = (LinearLayout) findViewById(R.id.parentView);
+
         mRecyclerView = (RecyclerView) findViewById(R.id.songsview);
         mRecyclerView.setHasFixedSize(true);
         mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLayoutManager);
-
-        mAdapter = new SongAdapter(this , finder.songs);
+        mAdapter = new SongAdapter(this, finder.songs, this);
         mRecyclerView.setAdapter(mAdapter);
+
+        // start Service
+        startService();
 
     }
 
     @Override
     protected void onStart() {
         super.onStart();
+
 
         if (finder.songs.isEmpty()) {
             mRecyclerView.setVisibility(View.GONE);
@@ -115,24 +126,30 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void togglePanel(){
 
+    public void togglePanel(String text){
         Fragment f = getFragmentManager().findFragmentByTag(PANEL_FRAGMENT_TAG);
 
 
         if (f != null) {
             getFragmentManager().popBackStack();
-        } else {
-            getFragmentManager().beginTransaction()
-                    .setCustomAnimations(R.animator.slide_up,
-                            R.animator.slide_down,
-                            R.animator.slide_up,
-                            R.animator.slide_down)
-                    .add(R.id.screenLayout, PanelFragment
-                                    .instantiate(this, PanelFragment.class.getName()),
-                            PANEL_FRAGMENT_TAG
-                    ).addToBackStack(null).commit();
         }
+
+        Bundle bundle = new Bundle();
+        bundle.putString(BUNDLE_TITLE, text);
+
+        Fragment fragment = PanelFragment.instantiate(this, PanelFragment.class.getName());
+        fragment.setArguments(bundle);
+
+        getFragmentManager().beginTransaction()
+                .setCustomAnimations(R.animator.slide_up,
+                        R.animator.slide_down,
+                        R.animator.slide_up,
+                        R.animator.slide_down)
+                .add(R.id.screenLayout, fragment,
+                        PANEL_FRAGMENT_TAG
+                ).addToBackStack(null).commit();
+
     }
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
@@ -142,7 +159,8 @@ public class MainActivity extends AppCompatActivity {
 
                 Uri uri = data.getData();
                 preferences.edit().putString(PREFERENCES_DIR, uri.getPath()).commit();
-                Toast.makeText(this, uri.getPath(), Toast.LENGTH_LONG).show();
+                Snackbar.make(parentView, "Directory changed :  " +uri.getPath(), Snackbar.LENGTH_SHORT).show();
+               // Toast.makeText(this, uri.getPath(), Toast.LENGTH_LONG).show();
 
         }
     }
@@ -157,5 +175,44 @@ public class MainActivity extends AppCompatActivity {
         i.putExtra(FilePickerActivity.EXTRA_START_PATH, "/storage");
         startActivityForResult(i, FILE_CODE);
     }
+
+
+    @Override
+    public void onServiceConnected(ComponentName name, IBinder service) {
+        Log.d("Songstone", "Service Connected");
+
+        SongService.MusicBinder binder = (SongService.MusicBinder)service;
+
+        // Here's where we finally create the MusicService
+        songService = binder.getService();
+        songService.setList(finder.songs);
+        songService.musicBound = true;
+    }
+
+    @Override
+    public void onServiceDisconnected(ComponentName name) {
+        Log.d("Songstone","Service Disconected");
+    }
+
+
+    public void startService(){
+        Context context = getApplicationContext();
+        Intent intent = new Intent(context, SongService.class);
+        context.bindService(intent, this, Context.BIND_AUTO_CREATE);
+        context.startService(intent);
+    }
+
+    @Override
+    public void onItemClick(int position) {
+        togglePanel(finder.getTitle(position));
+
+        LocalBroadcastManager local = LocalBroadcastManager.getInstance(getApplicationContext());
+        Intent broadcastIntent = new Intent(SongService.BROADCAST_ORDER);
+        broadcastIntent.putExtra(SongService.BROADCAST_EXTRA_GET_ORDER, SongService.ACTION_PLAY);
+        broadcastIntent.putExtra(SongService.BROADCAST_EXTRA_GET_POSITION, position);
+        local.sendBroadcast(broadcastIntent);
+
+    }
+
 
 }
