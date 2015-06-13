@@ -29,7 +29,7 @@ public class SongsFinder {
             files = listFiles();
             songs = listSongs();
         } catch(Exception e) {
-                    Log.d("Songstone","SongsFinder exeption");
+                    Log.e("Songstone","SongsFinder exeption");
             }
     }
 

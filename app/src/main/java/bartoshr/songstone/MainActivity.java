@@ -4,7 +4,6 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Fragment;
 
-import android.content.ClipData;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -24,13 +23,14 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.nononsenseapps.filepicker.FilePickerActivity;
 
 
-public class MainActivity extends AppCompatActivity implements OnItemClickListener, ServiceConnection {
+public class MainActivity extends AppCompatActivity implements OnItemClickListener, ServiceConnection, SongService.ChangePanelView {
 
     private static final String PANEL_FRAGMENT_TAG = "panel_fragment";
 
@@ -130,7 +130,6 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
     public void togglePanel(String text){
         Fragment f = getFragmentManager().findFragmentByTag(PANEL_FRAGMENT_TAG);
 
-
         if (f != null) {
             getFragmentManager().popBackStack();
         }
@@ -149,6 +148,8 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
                 .add(R.id.screenLayout, fragment,
                         PANEL_FRAGMENT_TAG
                 ).addToBackStack(null).commit();
+
+        mRecyclerView.setPadding(0,0,0, 115); // why 120 ? i don't know
 
     }
 
@@ -187,6 +188,7 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
         songService = binder.getService();
         songService.setList(finder.songs);
         songService.musicBound = true;
+        songService.changePanelView = this;
     }
 
     @Override
@@ -204,14 +206,11 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
 
     @Override
     public void onItemClick(int position) {
-        togglePanel(finder.getTitle(position));
-
         LocalBroadcastManager local = LocalBroadcastManager.getInstance(getApplicationContext());
         Intent broadcastIntent = new Intent(SongService.BROADCAST_ORDER);
         broadcastIntent.putExtra(SongService.BROADCAST_EXTRA_GET_ORDER, SongService.ACTION_PLAY);
         broadcastIntent.putExtra(SongService.BROADCAST_EXTRA_GET_POSITION, position);
         local.sendBroadcast(broadcastIntent);
-
     }
 
 

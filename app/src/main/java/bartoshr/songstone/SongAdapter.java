@@ -39,6 +39,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
         this.listener = listener;
     }
 
+
     @Override
     public int getItemCount() {
         return songList.size();
@@ -54,13 +55,6 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
     public SongViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
         final LayoutInflater inflater = LayoutInflater.
                 from(viewGroup.getContext());
-                //inflate(R.layout.list_item, viewGroup, false);
-
-       // SongViewHolder holder = new SongViewHolder(itemView);
-       // holder.vTitle.setTypeface(typeface);
-
-        // holder.vTitle.setTypeface(typeface);
-       // holder.cardView.setMinimumHeight(100);
 
        SongViewHolder holder = new SongViewHolder(MaterialRippleLayout.on(inflater.inflate(R.layout.list_item, viewGroup, false))
                 .rippleOverlay(true)
@@ -84,7 +78,6 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
         public SongViewHolder(View v) {
             super(v);
             vTitle =  (TextView) v.findViewById(R.id.title);
-            //cardView = (CardView) v.findViewById(R.id.card_view);
             v.setOnClickListener(this);
         }
 
