@@ -30,7 +30,7 @@ import android.widget.TextView;
 import com.nononsenseapps.filepicker.FilePickerActivity;
 
 
-public class MainActivity extends AppCompatActivity implements OnItemClickListener, ServiceConnection, SongService.ChangePanelView {
+public class MainActivity extends AppCompatActivity implements OnItemClickListener, ServiceConnection, SongService.OnUpdateView {
 
     private static final String PANEL_FRAGMENT_TAG = "panel_fragment";
 
@@ -63,7 +63,7 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
         setContentView(R.layout.activity_main);
 
         preferences = getSharedPreferences(PREFERENCES_NAME, AppCompatActivity.MODE_PRIVATE);
-        songDirecory = preferences.getString(PREFERENCES_DIR, "/storage/sdcard0/Music");
+        songDirecory = preferences.getString(PREFERENCES_DIR, "/storage/");
 
         finder = new SongsFinder(songDirecory);
 
@@ -127,7 +127,7 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
     }
 
 
-    public void togglePanel(String text){
+    public void updateView(String text){
         Fragment f = getFragmentManager().findFragmentByTag(PANEL_FRAGMENT_TAG);
 
         if (f != null) {
@@ -149,7 +149,7 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
                         PANEL_FRAGMENT_TAG
                 ).addToBackStack(null).commit();
 
-        mRecyclerView.setPadding(0,0,0, 115); // why 120 ? i don't know
+        mRecyclerView.setPadding(0,0,0, 115); 
 
     }
 
@@ -188,7 +188,7 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
         songService = binder.getService();
         songService.setList(finder.songs);
         songService.musicBound = true;
-        songService.changePanelView = this;
+        songService.viewListener = this;
     }
 
     @Override
