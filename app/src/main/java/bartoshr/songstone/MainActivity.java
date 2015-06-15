@@ -4,14 +4,19 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Fragment;
 
+import android.bluetooth.BluetoothAdapter;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.media.audiofx.EnvironmentalReverb;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.IBinder;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.LocalBroadcastManager;
@@ -24,25 +29,30 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.nononsenseapps.filepicker.FilePickerActivity;
 
+import org.apache.http.client.protocol.ResponseProcessCookies;
 
-public class MainActivity extends AppCompatActivity implements OnItemClickListener, ServiceConnection, SongService.OnUpdateView {
 
-    private static final String PANEL_FRAGMENT_TAG = "panel_fragment";
+public class MainActivity extends AppCompatActivity implements OnItemClickListener, ServiceConnection{
 
+    private static final String PANEL_FRAGMENT_TAG = "PANEL_FRAGMENT_TAG";
+
+    //Preferences
     private SharedPreferences preferences;
-    private static final String PREFERENCES_NAME = "myPreferences";
-    private static final String PREFERENCES_DIR = "PreferencesDir";
+    private static final String PREFERENCES_NAME = "PREFERENCES_NAME";
+    private static final String PREFERENCES_DIR = "PREFERENCES_DIR";
 
+    // Constans
     private static final int FILE_CODE = 1;
-
-    public static final String BUNDLE_TITLE = "title";
+    public static final String BUNDLE_TITLE = "BUNDLE_TITLE";
 
     SongsFinder finder;
+    String songDirecory;
 
     // Views
     private Toolbar toolbar;
@@ -55,7 +65,9 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
     //Services
     private SongService songService;
 
-    String songDirecory;
+    BluetoothAdapter bluetoothAdapter;
+
+    Receiver receiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,7 +75,7 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
         setContentView(R.layout.activity_main);
 
         preferences = getSharedPreferences(PREFERENCES_NAME, AppCompatActivity.MODE_PRIVATE);
-        songDirecory = preferences.getString(PREFERENCES_DIR, "/storage/");
+        songDirecory = preferences.getString(PREFERENCES_DIR, /*"/storage/"*/ Environment.getExternalStorageDirectory().getPath());
 
         finder = new SongsFinder(songDirecory);
 
@@ -83,6 +95,8 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
         mAdapter = new SongAdapter(this, finder.songs, this);
         mRecyclerView.setAdapter(mAdapter);
 
+        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+
         // start Service
         startService();
 
@@ -91,8 +105,6 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
     @Override
     protected void onStart() {
         super.onStart();
-
-
         if (finder.songs.isEmpty()) {
             mRecyclerView.setVisibility(View.GONE);
             emptyView.setVisibility(View.VISIBLE);
@@ -101,6 +113,19 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
             mRecyclerView.setVisibility(View.VISIBLE);
             emptyView.setVisibility(View.GONE);
         }
+
+        receiver = new Receiver();
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(SongService.ACTION_REFRESH_VIEW);
+        registerReceiver(receiver, intentFilter);
+
+    }
+
+
+    @Override
+    protected void onStop() {
+        unregisterReceiver(receiver);
+        super.onStop();
     }
 
     @Override
@@ -112,22 +137,23 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            startFilePicker();
-            return true;
+        switch (id) {
+            case R.id.action_settings:
+                startFilePicker();
+                break;
+            case R.id.action_bluetooth:
+                toggleBluetooth();
+                break;
         }
 
         return super.onOptionsItemSelected(item);
     }
 
+    // Method started when need to chaage title
+    public void updateView(String title){
 
-    public void updateView(String text){
         Fragment f = getFragmentManager().findFragmentByTag(PANEL_FRAGMENT_TAG);
 
         if (f != null) {
@@ -135,10 +161,24 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
         }
 
         Bundle bundle = new Bundle();
-        bundle.putString(BUNDLE_TITLE, text);
+        bundle.putString(BUNDLE_TITLE, title);
 
-        Fragment fragment = PanelFragment.instantiate(this, PanelFragment.class.getName());
+        PanelFragment fragment = (PanelFragment) PanelFragment.instantiate(this, PanelFragment.class.getName());
         fragment.setArguments(bundle);
+
+        fragment.setAnimationChangedListener(new PanelFragment.OnAnimationChanged() {
+
+            @Override
+            public void onAnimationEnded() {
+                mRecyclerView.setPadding(0,0,0, 115);
+            }
+
+            @Override
+            public void onAnimationStarted() {
+                if(mRecyclerView.getPaddingBottom() != 0)
+                    mRecyclerView.setPadding(0,0,0,0);
+            }
+        });
 
         getFragmentManager().beginTransaction()
                 .setCustomAnimations(R.animator.slide_up,
@@ -148,8 +188,6 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
                 .add(R.id.screenLayout, fragment,
                         PANEL_FRAGMENT_TAG
                 ).addToBackStack(null).commit();
-
-        mRecyclerView.setPadding(0,0,0, 115); 
 
     }
 
@@ -188,7 +226,6 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
         songService = binder.getService();
         songService.setList(finder.songs);
         songService.musicBound = true;
-        songService.viewListener = this;
     }
 
     @Override
@@ -200,8 +237,8 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
     public void startService(){
         Context context = getApplicationContext();
         Intent intent = new Intent(context, SongService.class);
-        context.bindService(intent, this, Context.BIND_AUTO_CREATE);
         context.startService(intent);
+        context.bindService(intent, this, Context.BIND_AUTO_CREATE);
     }
 
     @Override
@@ -212,6 +249,27 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
         broadcastIntent.putExtra(SongService.BROADCAST_EXTRA_GET_POSITION, position);
         local.sendBroadcast(broadcastIntent);
     }
+
+
+    public void toggleBluetooth()
+    {
+        if(bluetoothAdapter == null) {
+            Snackbar.make(parentView, "Bluetooth not present", Snackbar.LENGTH_SHORT).show();
+            return;
+        }
+        if(bluetoothAdapter.isEnabled()) bluetoothAdapter.disable();
+        else bluetoothAdapter.enable();
+    }
+
+    class Receiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String title = intent.getStringExtra(SongService.TITLE_KEY);
+            updateView(title);
+        }
+    }
+
 
 
 }

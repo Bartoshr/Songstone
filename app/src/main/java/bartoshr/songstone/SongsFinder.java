@@ -48,7 +48,7 @@ public class SongsFinder {
             result = new ArrayList<File>(Arrays.asList(matches));
 
             for (File file : matches) {
-                Log("Folder name: " + file.getAbsolutePath());
+               // Log("Folder name: " + file.getAbsolutePath());
                 listFolders(file);
                 result.addAll(listFolders(file));
             }
@@ -103,7 +103,7 @@ public class SongsFinder {
             title = title.trim();
             artist = artist.trim();
 
-            Log("Processign "+title);
+           // Log("Processign "+title);
             
             String path = file.getPath();
 

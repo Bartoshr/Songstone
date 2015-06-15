@@ -4,6 +4,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/card_view"
     android:layout_width="match_parent"
+    card_view:cardUseCompatPadding="true"
     android:layout_height="@dimen/list_item_height"
     android:layout_marginLeft="3dp"
     android:layout_marginRight="3dp"

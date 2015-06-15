@@ -30,9 +30,6 @@ public class SongService extends Service
 
     enum State { playing, paused, stopped};
 
-    //Interace to change the panelView displaying title of song
-    OnUpdateView viewListener;
-
     // Inidicate player status
     State state;
 
@@ -59,6 +56,9 @@ public class SongService extends Service
     public static final String ACTION_TOGGLE="bartoshr.songstone.ACTION_TOGGLE";
     public static final String ACTION_NEXT = "bartoshr.songstone.ACTION_NEXT";
     public static final String ACTION_PREV="bartoshr.songstone.ACTION_PREV";
+
+    public static final String ACTION_REFRESH_VIEW = "bartosh.songstone.REFRESH_VIEW";
+    public static final String TITLE_KEY = "TITLE_KEY";
 
     // real player
     public static MediaPlayer player = new MediaPlayer();
@@ -127,8 +127,10 @@ public class SongService extends Service
 
         player.reset();
 
-        if(viewListener != null)
-            viewListener.updateView(songs.get(currentSong).getTitle());
+        Intent intent = new Intent();
+        intent.setAction(ACTION_REFRESH_VIEW);
+        intent.putExtra(TITLE_KEY, songs.get(currentSong).getTitle());
+        sendBroadcast(intent);
 
         Log.d("Songstone", songs.get(currentSong).getPath());
 
@@ -189,7 +191,7 @@ public class SongService extends Service
 
     public int getPrevSong(){
          int result = (--currentSong)%(songs.size());
-         return (result>0)? result : result+songs.size() ;
+         return (result>=0)? result : result+songs.size() ;
     }
 
 
@@ -234,6 +236,7 @@ public class SongService extends Service
             }
         }
     };
+
 
     public static class ExternalBroadcastReceiver extends BroadcastReceiver {
 
@@ -311,9 +314,4 @@ public class SongService extends Service
         this.songs = songs;
     }
 
-    // Interfaces
-
-    interface OnUpdateView {
-       public void updateView(String text);
-    }
 }

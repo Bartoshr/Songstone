@@ -4,20 +4,25 @@ import android.animation.Animator;
 import android.animation.AnimatorInflater;
 import android.app.Activity;
 import android.app.Fragment;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 public class PanelFragment extends Fragment {
 
-
+    OnAnimationChanged animationChangedListener;
 
     public PanelFragment() {
         // Required empty public constructor
@@ -43,6 +48,17 @@ public class PanelFragment extends Fragment {
         String text = bundle.getString(MainActivity.BUNDLE_TITLE, "");
 
         TextView textView = (TextView) getView().findViewById(R.id.panelView);
+
+        textView.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                LocalBroadcastManager local = LocalBroadcastManager.getInstance(getActivity());
+                Intent broadcastIntent = new Intent(SongService.BROADCAST_ORDER);
+                broadcastIntent.putExtra(SongService.BROADCAST_EXTRA_GET_ORDER, SongService.ACTION_TOGGLE);
+                local.sendBroadcast(broadcastIntent);
+            }
+        });
+
         textView.setText(text);
     }
 
@@ -61,11 +77,12 @@ public class PanelFragment extends Fragment {
 
                 @Override
                 public void onAnimationStart(Animator animator) {
+                    animationChangedListener.onAnimationStarted();
                 }
 
                 @Override
                 public void onAnimationEnd(Animator animator) {
-
+                    animationChangedListener.onAnimationEnded();
                 }
 
                 @Override
@@ -78,7 +95,16 @@ public class PanelFragment extends Fragment {
             });
         }
 
-
         return animator;
+    }
+
+    public void setAnimationChangedListener(OnAnimationChanged animationChangedListener) {
+        this.animationChangedListener = animationChangedListener;
+    }
+
+
+    interface OnAnimationChanged{
+        public void onAnimationEnded();
+        public void onAnimationStarted();
     }
 }
