@@ -1,4 +1,4 @@
-package bartoshr.songstone;
+package bartoshr.songstone.activities;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -12,7 +12,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
-import android.media.audiofx.EnvironmentalReverb;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -28,14 +27,17 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.nononsenseapps.filepicker.FilePickerActivity;
 
-import org.apache.http.client.protocol.ResponseProcessCookies;
+import bartoshr.songstone.interfaces.OnItemClickListener;
+import bartoshr.songstone.fragments.PanelFragment;
+import bartoshr.songstone.R;
+import bartoshr.songstone.adapters.SongAdapter;
+import bartoshr.songstone.serivces.SongService;
+import bartoshr.songstone.data.SongsFinder;
 
 
 public class MainActivity extends AppCompatActivity implements OnItemClickListener, ServiceConnection{
@@ -140,9 +142,9 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
         int id = item.getItemId();
 
         switch (id) {
-            case R.id.action_settings:
+            /*case R.id.action_settings:
                 startFilePicker();
-                break;
+                break;*/
             case R.id.action_bluetooth:
                 toggleBluetooth();
                 break;

@@ -1,28 +1,25 @@
-package bartoshr.songstone;
+package bartoshr.songstone.fragments;
 
 import android.animation.Animator;
 import android.animation.AnimatorInflater;
-import android.app.Activity;
 import android.app.Fragment;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.TextView;
-import android.widget.Toast;
+
+import bartoshr.songstone.R;
+import bartoshr.songstone.serivces.SongService;
+import bartoshr.songstone.activities.MainActivity;
 
 
 public class PanelFragment extends Fragment {
 
-    OnAnimationChanged animationChangedListener;
+    public OnAnimationChanged animationChangedListener;
 
     public PanelFragment() {
         // Required empty public constructor
@@ -103,7 +100,7 @@ public class PanelFragment extends Fragment {
     }
 
 
-    interface OnAnimationChanged{
+    public interface OnAnimationChanged{
         public void onAnimationEnded();
         public void onAnimationStarted();
     }

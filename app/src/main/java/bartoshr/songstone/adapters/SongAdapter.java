@@ -1,30 +1,25 @@
-package bartoshr.songstone;
+package bartoshr.songstone.adapters;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.graphics.Typeface;
-import android.location.GpsStatus;
-import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 
 import com.balysv.materialripple.MaterialRippleLayout;
 
 import java.util.List;
 
+import bartoshr.songstone.interfaces.OnItemClickListener;
+import bartoshr.songstone.R;
+import bartoshr.songstone.models.Song;
+
 /**
  * Created by bartosh on 06.05.15.
  */
-
-interface OnItemClickListener {
-    public void onItemClick(int position);
-}
 
 public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder> {
 

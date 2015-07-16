@@ -3,7 +3,7 @@
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.NoActionBar">
         <!-- Customize your theme here. -->
-        <item name="android:colorPrimaryDark">@color/black</item>
+        <item name="android:colorPrimaryDark">#ff222228</item>
         <item name="android:navigationBarColor">@color/black</item>
 
     </style>

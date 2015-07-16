@@ -1,4 +1,4 @@
-package bartoshr.songstone;
+package bartoshr.songstone.serivces;
 
 /**
  * Created by bartosh on 28.05.15.
@@ -18,10 +18,14 @@ import android.os.PowerManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.util.Log;
-import android.view.KeyEvent;
 
 import java.io.IOException;
 import java.util.ArrayList;
+
+import bartoshr.songstone.broadcastReceivers.ExternalBroadcastReceiver;
+import bartoshr.songstone.models.Song;
+
+
 
 public class SongService extends Service
         implements  MediaPlayer.OnPreparedListener,
@@ -38,6 +42,7 @@ public class SongService extends Service
 
     //Component name of the MusicIntentReceiver.
     ComponentName mediaButtonEventReceiver;
+
 
     // Array of Songs
     public ArrayList<Song> songs = new ArrayList<Song>();
@@ -238,55 +243,6 @@ public class SongService extends Service
     };
 
 
-    public static class ExternalBroadcastReceiver extends BroadcastReceiver {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-
-            LocalBroadcastManager local = LocalBroadcastManager.getInstance(context);
-            String action = intent.getAction();
-
-
-            if (action.equals(Intent.ACTION_MEDIA_BUTTON)) {
-
-                KeyEvent keyEvent = (KeyEvent) intent.getExtras().get(Intent.EXTRA_KEY_EVENT);
-
-                if (keyEvent.getAction() != KeyEvent.ACTION_DOWN)
-                    return;
-
-                String intentValue = null;
-
-                switch (keyEvent.getKeyCode()) {
-
-                    case KeyEvent.KEYCODE_MEDIA_PLAY:
-                        intentValue = SongService.ACTION_TOGGLE;
-                        break;
-
-                    case KeyEvent.KEYCODE_MEDIA_PAUSE:
-                        intentValue = SongService.ACTION_TOGGLE;
-                        break;
-
-                    case KeyEvent.KEYCODE_MEDIA_NEXT:
-                        intentValue = SongService.ACTION_NEXT;
-                        break;
-
-                    case KeyEvent.KEYCODE_MEDIA_PREVIOUS:
-                        intentValue = SongService.ACTION_PREV;
-                        break;
-
-                }
-
-                // Actually sending the Intent
-                if (intentValue != null) {
-                    Intent broadcastIntent = new Intent(SongService.BROADCAST_ORDER);
-                    broadcastIntent.putExtra(SongService.BROADCAST_EXTRA_GET_ORDER, intentValue);
-                    local.sendBroadcast(broadcastIntent);
-                }
-            }
-        }
-    }
-
-
     // Binding things
 
     public boolean musicBound = false;
@@ -310,7 +266,7 @@ public class SongService extends Service
 
     // Binding profits
 
-    void setList( ArrayList<Song> songs){
+   public void setList( ArrayList<Song> songs){
         this.songs = songs;
     }
 

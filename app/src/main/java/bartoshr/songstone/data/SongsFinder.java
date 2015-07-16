@@ -1,7 +1,6 @@
-package bartoshr.songstone;
+package bartoshr.songstone.data;
 
 import android.util.Log;
-import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -11,14 +10,16 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 
+import bartoshr.songstone.models.Song;
+
 
 public class SongsFinder {
 
    // private Tagger tag;
 
-    ArrayList<Song> songs = new ArrayList<Song>();
-    ArrayList<File> folders = new ArrayList<File>();
-    ArrayList<File> files = new ArrayList<File>();
+    public ArrayList<Song> songs = new ArrayList<Song>();
+    public ArrayList<File> folders = new ArrayList<File>();
+    public ArrayList<File> files = new ArrayList<File>();
 
     public SongsFinder(String directory) {
 
