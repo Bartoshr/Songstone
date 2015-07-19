@@ -11,6 +11,12 @@
     <color name="black">#222222</color>
     <color name="gray">#ff5b5b5b</color>
 
+    <color name="colorPrimary">#222222</color>
+    <color name="colorPrimaryDark">#222222</color>
+    <color name="navigationBarColor">#222222</color>
+
+    <color name="windowBackground">#</color>
+
 
 
 </resources>

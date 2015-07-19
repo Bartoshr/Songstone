@@ -22,7 +22,7 @@ import android.util.Log;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import bartoshr.songstone.broadcastReceivers.ExternalBroadcastReceiver;
+import bartoshr.songstone.receivers.ExternalBroadcastReceiver;
 import bartoshr.songstone.models.Song;
 
 

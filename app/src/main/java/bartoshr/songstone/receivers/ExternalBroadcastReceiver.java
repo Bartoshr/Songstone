@@ -1,4 +1,4 @@
-package bartoshr.songstone.broadcastReceivers;
+package bartoshr.songstone.receivers;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

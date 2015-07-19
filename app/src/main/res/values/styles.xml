@@ -6,19 +6,19 @@
         <item name="android:windowBackground">@drawable/white_bg</item>
     </style>
 
-    <style name="SampleTheme" parent="Theme.AppCompat.Light.DialogWhenLarge">
+    <style name="FilePickerTheme" parent="Theme.AppCompat.Light.DialogWhenLarge">
         <item name="colorPrimary">@color/black</item>
-        <item name="colorPrimaryDark">#000</item>
+        <item name="colorPrimaryDark">@color/black</item>
         <item name="colorAccent">@color/flush_orange</item>
 
-        <item name="alertDialogTheme">@style/SampleAlertDialogTheme</item>
+        <item name="alertDialogTheme">@style/FilePickerTheme.Dialog</item>
 
         <!-- These are important. Handled by toolbar -->
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
 
-    <style name="SampleAlertDialogTheme" parent="Theme.AppCompat.Light.Dialog.Alert">
+    <style name="FilePickerTheme.Dialog" parent="Theme.AppCompat.Light.Dialog.Alert">
         <item name="colorPrimary">@color/black</item>
         <item name="colorPrimaryDark">#000</item>
         <item name="colorAccent">@color/flush_orange</item>
