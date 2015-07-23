@@ -1,4 +1,4 @@
-package bartoshr.songstone.data;
+package bartoshr.songstone;
 
 import android.util.Log;
 
@@ -10,12 +10,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 
-import bartoshr.songstone.models.Song;
-
 
 public class SongsFinder {
-
-   // private Tagger tag;
 
     public ArrayList<Song> songs = new ArrayList<Song>();
     public ArrayList<File> folders = new ArrayList<File>();
@@ -90,7 +86,8 @@ public class SongsFinder {
             String fileName = file.getName();
             fileName = fileName.replaceAll("\\(.*?\\)", "");
             fileName = fileName.replaceAll("\\W*\\d+( |. |.)", "");
-            fileName = fileName.substring(0,fileName.length()-4);
+            fileName = fileName.substring(0, fileName.length() - 4);
+            fileName = fileName.substring(0,1).toUpperCase()+fileName.substring(1);
 
 
             String title = fileName;
@@ -158,11 +155,6 @@ public class SongsFinder {
             return true ;
         }
 
-    }
-
-    public void Log(String str)
-    {
-        Log.i("Songstone", str);
     }
 
 

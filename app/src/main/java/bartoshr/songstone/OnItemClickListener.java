@@ -1,4 +1,4 @@
-package bartoshr.songstone.interfaces;
+package bartoshr.songstone;
 
 /**
  * Created by bartosh on 15.07.15.

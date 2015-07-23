@@ -1,4 +1,4 @@
-package bartoshr.songstone.models;
+package bartoshr.songstone;
 
 import java.util.ArrayList;
 import java.util.Comparator;

@@ -1,6 +1,6 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
-    android:layout_height="61dp" tools:context="bartoshr.songstone.fragments.PanelFragment"
+    android:layout_height="61dp" tools:context="bartoshr.songstone.PanelFragment"
     android:clickable="true"
     android:orientation="vertical"
     android:layout_gravity="bottom">
@@ -14,7 +14,7 @@
         android:id="@+id/panelView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/gray"
+        android:background="@color/panelView"
         android:text="@string/default_fragment_panel"
         android:gravity="center_vertical"
         android:textSize="18sp"

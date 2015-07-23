@@ -1,4 +1,4 @@
-package bartoshr.songstone.fragments;
+package bartoshr.songstone;
 
 import android.animation.Animator;
 import android.animation.AnimatorInflater;
@@ -11,10 +11,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.TextView;
-
-import bartoshr.songstone.R;
-import bartoshr.songstone.serivces.SongService;
-import bartoshr.songstone.activities.MainActivity;
 
 
 public class PanelFragment extends Fragment {

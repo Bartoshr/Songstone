@@ -6,7 +6,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/parentView"
-    android:background="@color/white"
     android:layout_gravity="top"
     android:orientation="vertical"
     tools:context=".MainActivity">
@@ -38,7 +37,7 @@
                     android:gravity="center"
                     android:text="Any Songs Found"
                     android:textSize="30sp"
-                    android:textColor="@color/gray"
+                    android:textColor="@color/emptyView"
                     android:layout_height="match_parent" />
 
             </LinearLayout>

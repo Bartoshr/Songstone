@@ -1,12 +1,10 @@
-package bartoshr.songstone.receivers;
+package bartoshr.songstone;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
 import android.view.KeyEvent;
-
-import bartoshr.songstone.serivces.SongService;
 
 /**
  * Created by bartosh on 16.07.15.

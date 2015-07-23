@@ -1,4 +1,4 @@
-package bartoshr.songstone.activities;
+package bartoshr.songstone;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -31,13 +31,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.nononsenseapps.filepicker.FilePickerActivity;
-
-import bartoshr.songstone.interfaces.OnItemClickListener;
-import bartoshr.songstone.fragments.PanelFragment;
-import bartoshr.songstone.R;
-import bartoshr.songstone.adapters.SongAdapter;
-import bartoshr.songstone.serivces.SongService;
-import bartoshr.songstone.data.SongsFinder;
 
 
 public class MainActivity extends AppCompatActivity implements OnItemClickListener, ServiceConnection{
@@ -99,7 +92,6 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
 
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
-        // start Service
         startService();
 
     }

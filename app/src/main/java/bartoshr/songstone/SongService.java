@@ -1,4 +1,4 @@
-package bartoshr.songstone.serivces;
+package bartoshr.songstone;
 
 /**
  * Created by bartosh on 28.05.15.
@@ -21,10 +21,6 @@ import android.util.Log;
 
 import java.io.IOException;
 import java.util.ArrayList;
-
-import bartoshr.songstone.receivers.ExternalBroadcastReceiver;
-import bartoshr.songstone.models.Song;
-
 
 
 public class SongService extends Service

@@ -1,4 +1,4 @@
-package bartoshr.songstone.adapters;
+package bartoshr.songstone;
 
 import android.content.Context;
 import android.graphics.Typeface;
@@ -12,10 +12,6 @@ import android.widget.TextView;
 import com.balysv.materialripple.MaterialRippleLayout;
 
 import java.util.List;
-
-import bartoshr.songstone.interfaces.OnItemClickListener;
-import bartoshr.songstone.R;
-import bartoshr.songstone.models.Song;
 
 /**
  * Created by bartosh on 06.05.15.
