@@ -94,8 +94,6 @@ public class SongService extends Service
 
         state = State.stopped;
 
-
-
     }
 
 
@@ -296,7 +294,7 @@ public class SongService extends Service
                 System.currentTimeMillis());
         Intent notificationIntent = new Intent(this, MainActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
-        notification.setLatestEventInfo(this, getText(R.string.notification_title),
+        notification.setLatestEventInfo(this, artist,
                 title, pendingIntent);
         startForeground(ONGOING_NOTIFICATION_ID, notification);
     }

@@ -96,8 +96,6 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
         Log.i(TAG, "onCreate()");
         startService();
 
-
-
     }
 
     @Override
@@ -113,6 +111,7 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
         }
     }
 
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -121,11 +120,6 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
         registerReceiver(receiver, intentFilter);
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        unregisterReceiver(receiver);
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -152,8 +146,6 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
 
     // Method started when need to chaage title
     public void updateView(String title){
-
-        Log.i(TAG,"updateView()");
 
         Fragment f = getFragmentManager().findFragmentByTag(PANEL_FRAGMENT_TAG);
 
@@ -201,7 +193,6 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
                 preferences.edit().putString(PREFERENCES_DIR, uri.getPath()).commit();
                 Snackbar.make(parentView, "Directory changed :  " +uri.getPath(), Snackbar.LENGTH_SHORT).show();
                // Toast.makeText(this, uri.getPath(), Toast.LENGTH_LONG).show();
-
         }
     }
 
@@ -231,15 +222,15 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
 
     @Override
     public void onServiceDisconnected(ComponentName name) {
-        Log.i(TAG,"Service Disconected");
+        Log.i(TAG, "Service Disconected");
         songService.musicBound = false;
     }
 
 
     public void startService(){
         songIntent = new Intent(this, SongService.class);
-        this.bindService(songIntent, this, Context.BIND_AUTO_CREATE);
         this.startService(songIntent);
+        this.bindService(songIntent, this, Context.BIND_AUTO_CREATE);
     }
 
 
@@ -265,18 +256,25 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
         else bluetoothAdapter.enable();
     }
 
-    class Receiver extends BroadcastReceiver {
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterReceiver(receiver);
+    }
 
-        @Override 
+    @Override
+    protected void onStop() {
+        unbindService(this);
+        super.onStop();
+    }
+
+
+    class Receiver extends BroadcastReceiver {
+        @Override
         public void onReceive(Context context, Intent intent) {
             String title = intent.getStringExtra(SongService.TITLE_KEY);
             updateView(title);
         }
     }
 
-    @Override
-    protected void onDestroy() {
-        stopService(songIntent);
-        super.onDestroy();
-    }
 }
