@@ -109,6 +109,7 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
             mRecyclerView.setVisibility(View.VISIBLE);
             emptyView.setVisibility(View.GONE);
         }
+        this.bindService(songIntent, this, Context.BIND_AUTO_CREATE);
     }
 
 
@@ -230,7 +231,6 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
     public void startService(){
         songIntent = new Intent(this, SongService.class);
         this.startService(songIntent);
-        this.bindService(songIntent, this, Context.BIND_AUTO_CREATE);
     }
 
 
