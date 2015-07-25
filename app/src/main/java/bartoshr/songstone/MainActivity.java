@@ -32,9 +32,12 @@ import android.widget.TextView;
 
 import com.nononsenseapps.filepicker.FilePickerActivity;
 
+import bartoshr.songstone.Intefaces.OnItemClickListener;
+
 
 public class MainActivity extends AppCompatActivity implements OnItemClickListener, ServiceConnection{
 
+    private static final String TAG = "MainActivity";
     private static final String PANEL_FRAGMENT_TAG = "PANEL_FRAGMENT_TAG";
 
     //Preferences
@@ -59,8 +62,7 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
 
     //Services
     private SongService songService;
-
-    BluetoothAdapter bluetoothAdapter;
+    private Intent songIntent;
 
     Receiver receiver;
 
@@ -73,7 +75,7 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
         songDirecory = preferences.getString(PREFERENCES_DIR, /*"/storage/"*/ Environment.getExternalStorageDirectory().getPath());
 
         finder = new SongsFinder(songDirecory);
-
+        receiver = new Receiver();
 
         // Setting views
         toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -90,9 +92,11 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
         mAdapter = new SongAdapter(this, finder.songs, this);
         mRecyclerView.setAdapter(mAdapter);
 
-        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
+        Log.i(TAG, "onCreate()");
         startService();
+
+
 
     }
 
@@ -107,19 +111,20 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
             mRecyclerView.setVisibility(View.VISIBLE);
             emptyView.setVisibility(View.GONE);
         }
+    }
 
-        receiver = new Receiver();
+    @Override
+    protected void onResume() {
+        super.onResume();
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(SongService.ACTION_REFRESH_VIEW);
         registerReceiver(receiver, intentFilter);
-
     }
 
-
     @Override
-    protected void onStop() {
+    protected void onPause() {
+        super.onPause();
         unregisterReceiver(receiver);
-        super.onStop();
     }
 
     @Override
@@ -147,6 +152,8 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
 
     // Method started when need to chaage title
     public void updateView(String title){
+
+        Log.i(TAG,"updateView()");
 
         Fragment f = getFragmentManager().findFragmentByTag(PANEL_FRAGMENT_TAG);
 
@@ -212,7 +219,7 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
 
     @Override
     public void onServiceConnected(ComponentName name, IBinder service) {
-        Log.d("Songstone", "Service Connected");
+        Log.i(TAG, "Service Connected");
 
         SongService.MusicBinder binder = (SongService.MusicBinder)service;
 
@@ -224,17 +231,19 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
 
     @Override
     public void onServiceDisconnected(ComponentName name) {
-        Log.d("Songstone","Service Disconected");
+        Log.i(TAG,"Service Disconected");
+        songService.musicBound = false;
     }
 
 
     public void startService(){
-        Context context = getApplicationContext();
-        Intent intent = new Intent(context, SongService.class);
-        context.startService(intent);
-        context.bindService(intent, this, Context.BIND_AUTO_CREATE);
+        songIntent = new Intent(this, SongService.class);
+        this.bindService(songIntent, this, Context.BIND_AUTO_CREATE);
+        this.startService(songIntent);
     }
 
+
+    // Invoke when List item is clicked
     @Override
     public void onItemClick(int position) {
         LocalBroadcastManager local = LocalBroadcastManager.getInstance(getApplicationContext());
@@ -247,6 +256,7 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
 
     public void toggleBluetooth()
     {
+        BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if(bluetoothAdapter == null) {
             Snackbar.make(parentView, "Bluetooth not present", Snackbar.LENGTH_SHORT).show();
             return;
@@ -257,13 +267,16 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
 
     class Receiver extends BroadcastReceiver {
 
-        @Override
+        @Override 
         public void onReceive(Context context, Intent intent) {
             String title = intent.getStringExtra(SongService.TITLE_KEY);
             updateView(title);
         }
     }
 
-
-
+    @Override
+    protected void onDestroy() {
+        stopService(songIntent);
+        super.onDestroy();
+    }
 }

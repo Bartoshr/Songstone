@@ -5,4 +5,9 @@
 
 <!-- TODO: Remove or change this placeholder text -->
     <string name="default_fragment_panel">Old Man Canyon - Phantoms&amp;Friends</string>
+
+    <string name="ticker_text">Ticker text</string>
+    <string name="notification_title">Songstone</string>
+    <string name="notification_message">Songstone message</string>
+
 </resources>

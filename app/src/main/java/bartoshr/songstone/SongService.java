@@ -4,6 +4,8 @@ package bartoshr.songstone;
  * Created by bartosh on 28.05.15.
  */
 
+import android.app.Notification;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -27,6 +29,8 @@ public class SongService extends Service
         implements  MediaPlayer.OnPreparedListener,
                     MediaPlayer.OnCompletionListener,
                     MediaPlayer.OnErrorListener {
+
+    private static final String TAG = "SongService";
 
     enum State { playing, paused, stopped};
 
@@ -64,6 +68,8 @@ public class SongService extends Service
     // real player
     public static MediaPlayer player = new MediaPlayer();
 
+    static final private int ONGOING_NOTIFICATION_ID = 1;
+
 
     public SongService() {
 
@@ -80,13 +86,15 @@ public class SongService extends Service
                 .registerReceiver(localBroadcastReceiver, new IntentFilter(SongService.BROADCAST_ORDER));
 
         mediaButtonEventReceiver = new ComponentName(this,
-                ExternalBroadcastReceiver.class);
+                ExternalBroadcastReceiver.class.getName());
 
         mSession = new MediaSessionCompat(getApplicationContext(),"tag",mediaButtonEventReceiver,null);
         mSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS | MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
         mSession.setActive(true);
 
         state = State.stopped;
+
+
 
     }
 
@@ -118,7 +126,7 @@ public class SongService extends Service
         player.setOnCompletionListener(this);
         player.setOnPreparedListener(this);
 
-        Log.d("Songstone", "initPlayer");
+        Log.i(TAG, "initPlayer");
 
     }
 
@@ -128,12 +136,18 @@ public class SongService extends Service
 
         player.reset();
 
+        String title = songs.get(currentSong).getTitle();
+        String artist = songs.get(currentSong).getArtist();
+
+
+        // Seding intent for refresh current View in MainActivity
         Intent intent = new Intent();
         intent.setAction(ACTION_REFRESH_VIEW);
-        intent.putExtra(TITLE_KEY, songs.get(currentSong).getTitle());
+        intent.putExtra(TITLE_KEY, title);
         sendBroadcast(intent);
 
-        Log.d("Songstone", songs.get(currentSong).getPath());
+
+        Log.i(TAG, songs.get(currentSong).getPath());
 
         try {
             player.setDataSource(songs.get(currentSong).getPath());
@@ -145,7 +159,10 @@ public class SongService extends Service
             Log.e("Songstone", "Error when changing the song", e);
         }
 
+
+
         player.prepareAsync();
+        setForeground(artist, title);
 
     }
 
@@ -162,12 +179,18 @@ public class SongService extends Service
 
     public void pausePlayer() {
         player.pause();
+        removeForeground();
         state = State.paused;
     }
 
     public void resumePlayer() {
+
+        String title = songs.get(currentSong).getTitle();
+        String artist = songs.get(currentSong).getArtist();
+
         player.start();
         state = State.playing;
+        setForeground(artist, title);
     }
 
     public void togglePlayer(){
@@ -265,5 +288,22 @@ public class SongService extends Service
    public void setList( ArrayList<Song> songs){
         this.songs = songs;
     }
+
+    //Forefround
+
+    void setForeground(String artist, String title){
+        Notification notification = new Notification(R.drawable.ic_stat_note, null,
+                System.currentTimeMillis());
+        Intent notificationIntent = new Intent(this, MainActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
+        notification.setLatestEventInfo(this, getText(R.string.notification_title),
+                title, pendingIntent);
+        startForeground(ONGOING_NOTIFICATION_ID, notification);
+    }
+
+    void removeForeground(){
+        stopForeground(true);
+    }
+
 
 }

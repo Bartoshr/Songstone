@@ -13,6 +13,8 @@ import com.balysv.materialripple.MaterialRippleLayout;
 
 import java.util.List;
 
+import bartoshr.songstone.Intefaces.OnItemClickListener;
+
 /**
  * Created by bartosh on 06.05.15.
  */
