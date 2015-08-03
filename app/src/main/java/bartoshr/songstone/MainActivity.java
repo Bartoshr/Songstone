@@ -17,8 +17,12 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.IBinder;
+import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.Toolbar;
@@ -59,6 +63,8 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
     private LinearLayout parentView;
+    private DrawerLayout drawerLayout;
+    NavigationView mNavigationView;
 
     //Services
     private SongService songService;
@@ -78,13 +84,32 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
         receiver = new Receiver();
 
         // Setting views
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
-        emptyView = (TextView) findViewById(R.id.emptyView);
+        setUpToolbar();
+        setUpNavDrawer();
 
         parentView = (LinearLayout) findViewById(R.id.parentView);
+        mNavigationView = (NavigationView) findViewById(R.id.nav_view);
 
+        mNavigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(MenuItem menuItem) {
+
+                menuItem.setChecked(true);
+                switch (menuItem.getItemId()) {
+                    case R.id.navigation_item_1:
+                        Snackbar.make(parentView, "Delete", Snackbar.LENGTH_SHORT).show();
+                        return true;
+                    case R.id.navigation_item_2:
+                        Snackbar.make(parentView, "Add", Snackbar.LENGTH_SHORT).show();
+                        return true;
+                    default:
+                        return true;
+                }
+            }
+        });
+
+
+        emptyView = (TextView) findViewById(R.id.emptyView);
         mRecyclerView = (RecyclerView) findViewById(R.id.songsview);
         mRecyclerView.setHasFixedSize(true);
         mLayoutManager = new LinearLayoutManager(this);
@@ -274,6 +299,33 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
         public void onReceive(Context context, Intent intent) {
             String title = intent.getStringExtra(SongService.TITLE_KEY);
             updateView(title);
+        }
+    }
+
+    private void setUpToolbar() {
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        if (toolbar != null) {
+            setSupportActionBar(toolbar);
+        }
+    }
+
+    private void setUpNavDrawer() {
+        drawerLayout = (DrawerLayout) findViewById(R.id.nav_drawer);
+        ActionBarDrawerToggle mDrawerToggle = new ActionBarDrawerToggle(
+                this,  drawerLayout, toolbar,
+                R.string.navigation_drawer_open, R.string.navigation_drawer_close
+        );
+        drawerLayout.setDrawerListener(mDrawerToggle);
+        if (toolbar != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setHomeButtonEnabled(true);
+            mDrawerToggle.syncState();
+            toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    drawerLayout.openDrawer(GravityCompat.START);
+                }
+            });
         }
     }
 
