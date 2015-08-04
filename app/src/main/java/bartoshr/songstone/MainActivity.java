@@ -39,7 +39,8 @@ import com.nononsenseapps.filepicker.FilePickerActivity;
 import bartoshr.songstone.Intefaces.OnItemClickListener;
 
 
-public class MainActivity extends AppCompatActivity implements OnItemClickListener, ServiceConnection{
+public class MainActivity extends AppCompatActivity implements OnItemClickListener, ServiceConnection,
+        NavigationView.OnNavigationItemSelectedListener{
 
     private static final String TAG = "MainActivity";
     private static final String PANEL_FRAGMENT_TAG = "PANEL_FRAGMENT_TAG";
@@ -89,23 +90,7 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
 
         parentView = (LinearLayout) findViewById(R.id.parentView);
         mNavigationView = (NavigationView) findViewById(R.id.nav_view);
-
-        mNavigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(MenuItem menuItem) {
-
-                menuItem.setChecked(true);
-                switch (menuItem.getItemId()) {
-                    case R.id.navigation_item_stats:
-                        return true;
-                    case R.id.navigation_item_sets:
-                        return true;
-                    default:
-                        return true;
-                }
-            }
-        });
-
+        mNavigationView.setNavigationItemSelectedListener(this);
 
         emptyView = (TextView) findViewById(R.id.emptyView);
         mRecyclerView = (RecyclerView) findViewById(R.id.songsview);
@@ -161,11 +146,25 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
                 startFilePicker();
                 break;*/
             case R.id.action_bluetooth:
-                toggleBluetooth();
+                Utils.toggleBluetooth();
                 break;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(MenuItem menuItem) {
+
+        menuItem.setChecked(true);
+        switch (menuItem.getItemId()) {
+            case R.id.navigation_item_stats:
+                return true;
+            case R.id.navigation_item_sets:
+                return true;
+            default:
+                return true;
+        }
     }
 
     // Method started when need to change title
@@ -216,7 +215,6 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
                 Uri uri = data.getData();
                 preferences.edit().putString(PREFERENCES_DIR, uri.getPath()).commit();
                 Snackbar.make(parentView, "Directory changed :  " +uri.getPath(), Snackbar.LENGTH_SHORT).show();
-               // Toast.makeText(this, uri.getPath(), Toast.LENGTH_LONG).show();
         }
     }
 
@@ -265,18 +263,6 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
         broadcastIntent.putExtra(SongService.BROADCAST_EXTRA_GET_ORDER, SongService.ACTION_PLAY);
         broadcastIntent.putExtra(SongService.BROADCAST_EXTRA_GET_POSITION, position);
         local.sendBroadcast(broadcastIntent);
-    }
-
-
-    public void toggleBluetooth()
-    {
-        BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        if(bluetoothAdapter == null) {
-            Snackbar.make(parentView, "Bluetooth not present", Snackbar.LENGTH_SHORT).show();
-            return;
-        }
-        if(bluetoothAdapter.isEnabled()) bluetoothAdapter.disable();
-        else bluetoothAdapter.enable();
     }
 
     @Override
