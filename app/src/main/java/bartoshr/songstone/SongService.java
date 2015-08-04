@@ -64,6 +64,7 @@ public class SongService extends Service
 
     public static final String ACTION_REFRESH_VIEW = "bartosh.songstone.REFRESH_VIEW";
     public static final String TITLE_KEY = "TITLE_KEY";
+    public static final String ARTIST_KEY = "ARTIST_KEY";
 
     // real player
     public static MediaPlayer player = new MediaPlayer();
@@ -142,6 +143,7 @@ public class SongService extends Service
         Intent intent = new Intent();
         intent.setAction(ACTION_REFRESH_VIEW);
         intent.putExtra(TITLE_KEY, title);
+        intent.putExtra(ARTIST_KEY, artist);
         sendBroadcast(intent);
 
 

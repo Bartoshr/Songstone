@@ -2,14 +2,14 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <group android:checkableBehavior="single">
         <item
-            android:id="@+id/navigation_item_1"
+            android:id="@+id/navigation_item_stats"
             android:checked="true"
-            android:icon="@drawable/abc_ic_clear_mtrl_alpha"
-            android:title="Item One" />
+            android:icon="@drawable/abc_ic_menu_share_mtrl_alpha"
+            android:title="@string/navigation_item_stats" />
         <item
-            android:id="@+id/navigation_item_2"
+            android:id="@+id/navigation_item_sets"
             android:icon="@drawable/ic_collections_add_collection"
-            android:title="Item Two" />
+            android:title="@string/navigation_item_sets" />
     </group>
 
 

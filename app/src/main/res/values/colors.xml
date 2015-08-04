@@ -4,7 +4,10 @@
     <!-- View colors -->
 
     <color name="emptyView">#FF5B5B5B</color>
-    <color name="panelView">#FF5B5B5B</color>
+
+
+    <color name="panelBackground">#FF5B5B5B</color>
+    <color name="panelText">#FFFFFF</color>
 
     <!-- Theme colors -->
 
@@ -16,6 +19,11 @@
 
     <color name="navigationBarColor">#222222</color>
     <color name="windowBackground">#FFF3F3F3</color>
+
+
+    <!-- Toolbar specific colors -->
+    <color name="textColorToolbar">#FFFFFF</color>
+    <color name="textColorToolbarMenu">#FFFFFF</color>
 
 
 

@@ -38,7 +38,7 @@ public class PanelFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         Bundle bundle = this.getArguments();
-        String text = bundle.getString(MainActivity.BUNDLE_TITLE, "");
+        String text = bundle.getString(MainActivity.BUNDLE_TEXT, "");
 
         TextView textView = (TextView) getView().findViewById(R.id.panelView);
 

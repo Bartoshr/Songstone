@@ -2,15 +2,19 @@
     <string name="app_name">Songstone</string>
 
     <string name="action_settings">Settings</string>
-
-<!-- TODO: Remove or change this placeholder text -->
     <string name="default_fragment_panel">Old Man Canyon - Phantoms&amp;Friends</string>
 
+
+    <!-- Notification -->
     <string name="ticker_text">Ticker text</string>
     <string name="notification_title">Songstone</string>
     <string name="notification_message">Songstone message</string>
 
+
+    <!-- Drawer -->
     <string name="navigation_drawer_open">Drawer Opened</string>
     <string name="navigation_drawer_close">Drawer Closed</string>
+    <string name="navigation_item_stats">Statistic</string>
+    <string name="navigation_item_sets">Settings</string>
 
 </resources>

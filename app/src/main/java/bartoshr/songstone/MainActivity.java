@@ -51,7 +51,7 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
 
     // Constans
     private static final int FILE_CODE = 1;
-    public static final String BUNDLE_TITLE = "BUNDLE_TITLE";
+    public static final String BUNDLE_TEXT = "BUNDLE_TEXT";
 
     SongsFinder finder;
     String songDirecory;
@@ -96,11 +96,9 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
 
                 menuItem.setChecked(true);
                 switch (menuItem.getItemId()) {
-                    case R.id.navigation_item_1:
-                        Snackbar.make(parentView, "Delete", Snackbar.LENGTH_SHORT).show();
+                    case R.id.navigation_item_stats:
                         return true;
-                    case R.id.navigation_item_2:
-                        Snackbar.make(parentView, "Add", Snackbar.LENGTH_SHORT).show();
+                    case R.id.navigation_item_sets:
                         return true;
                     default:
                         return true;
@@ -170,8 +168,8 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
         return super.onOptionsItemSelected(item);
     }
 
-    // Method started when need to chaage title
-    public void updateView(String title){
+    // Method started when need to change title
+    public void updateView(String title, String artist){
 
         Fragment f = getFragmentManager().findFragmentByTag(PANEL_FRAGMENT_TAG);
 
@@ -180,7 +178,7 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
         }
 
         Bundle bundle = new Bundle();
-        bundle.putString(BUNDLE_TITLE, title);
+        bundle.putString(BUNDLE_TEXT, title+" - "+artist);
 
         PanelFragment fragment = (PanelFragment) PanelFragment.instantiate(this, PanelFragment.class.getName());
         fragment.setArguments(bundle);
@@ -298,7 +296,8 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
         @Override
         public void onReceive(Context context, Intent intent) {
             String title = intent.getStringExtra(SongService.TITLE_KEY);
-            updateView(title);
+            String artist = intent.getStringExtra(SongService.ARTIST_KEY);
+            updateView(title, artist);
         }
     }
 
@@ -320,12 +319,7 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setHomeButtonEnabled(true);
             mDrawerToggle.syncState();
-            toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    drawerLayout.openDrawer(GravityCompat.START);
-                }
-            });
+
         }
     }
 

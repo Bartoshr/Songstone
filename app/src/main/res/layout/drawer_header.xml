@@ -10,7 +10,7 @@
     <TextView
         style="@style/TextAppearance.AppCompat.Subhead"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_gravity="bottom"
         android:layout_margin="16dp"
         android:text="Menu"

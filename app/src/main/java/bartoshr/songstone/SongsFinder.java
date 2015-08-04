@@ -91,7 +91,7 @@ public class SongsFinder {
 
 
             String title = fileName;
-            String artist = "Songstone";
+            String artist = "Unknown";
             if(fileName.matches(".*-.*"))
             {
                 String[] array = fileName.split("-");
