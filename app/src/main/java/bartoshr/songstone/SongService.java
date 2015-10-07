@@ -292,8 +292,12 @@ public class SongService extends Service
     //Forefround
 
     void setForeground(String artist, String title){
-        Notification notification = new Notification(R.drawable.ic_stat_note, null,
-                System.currentTimeMillis());
+        Notification notification = new Notification.Builder(this)
+                .setSmallIcon(R.drawable.ic_stat_note)
+                .setContentTitle(title)
+                .setContentText(artist)
+                .build();
+
         Intent notificationIntent = new Intent(this, MainActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
         notification.setLatestEventInfo(this, artist,

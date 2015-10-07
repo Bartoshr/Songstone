@@ -26,8 +26,9 @@ public class SongsFinder {
             files = listFiles();
             songs = listSongs();
         } catch(Exception e) {
-                    Log.e("Songstone","SongsFinder exeption");
-            }
+            e.printStackTrace();
+            Log.e("SongFinder","SongsFinder problem");
+        }
     }
 
 
@@ -72,6 +73,7 @@ public class SongsFinder {
             result.addAll(Arrays.asList(matches));
 
         }
+
         return result;
     }
 
@@ -86,8 +88,8 @@ public class SongsFinder {
             String fileName = file.getName();
             fileName = fileName.replaceAll("\\(.*?\\)", "");
             fileName = fileName.replaceAll("\\W*\\d+( |. |.)", "");
-            fileName = fileName.substring(0, fileName.length() - 4);
-            fileName = fileName.substring(0,1).toUpperCase()+fileName.substring(1);
+            //fileName = fileName.substring(0, fileName.length() - 4);
+            //fileName = fileName.substring(0,1).toUpperCase()+fileName.substring(1);
 
 
             String title = fileName;

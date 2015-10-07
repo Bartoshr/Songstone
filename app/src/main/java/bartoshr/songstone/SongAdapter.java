@@ -13,8 +13,6 @@ import com.balysv.materialripple.MaterialRippleLayout;
 
 import java.util.List;
 
-import bartoshr.songstone.Intefaces.OnItemClickListener;
-
 /**
  * Created by bartosh on 06.05.15.
  */
@@ -24,12 +22,12 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
     private List<Song> songList;
     protected Typeface typeface;
 
-    OnItemClickListener listener;
+    OnItemClickListener clickListener;
 
     public SongAdapter(Context context, List<Song> songList, OnItemClickListener listener) {
         this.songList = songList;
         typeface = Typeface.createFromAsset(context.getAssets(), "fonts/ubuntu.ttf");
-        this.listener = listener;
+        this.clickListener = listener;
     }
 
 
@@ -57,26 +55,43 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
                 .create());
 
         holder.vTitle.setTypeface(typeface);
-        holder.listener = listener;
+        holder.clickListener = clickListener;
 
         return holder;
     }
 
-    public static class SongViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public void remove(int position) {
+        songList.remove(position);
+        notifyItemRemoved(position);
+    }
+
+    public interface OnItemClickListener {
+        public void onItemClick(int position);
+        public boolean onItemLongClick(int position);
+    }
+
+
+    public static class SongViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
 
         protected TextView vTitle;
-        private OnItemClickListener listener;
+        private OnItemClickListener clickListener;
 
 
         public SongViewHolder(View v) {
             super(v);
             vTitle =  (TextView) v.findViewById(R.id.title);
             v.setOnClickListener(this);
+            v.setOnLongClickListener(this);
         }
 
         @Override
         public void onClick(View view) {
-            listener.onItemClick(getAdapterPosition());
+            clickListener.onItemClick(getAdapterPosition());
+        }
+
+        @Override
+        public boolean onLongClick(View view) {
+            return clickListener.onItemLongClick(getAdapterPosition());
         }
     }
 }

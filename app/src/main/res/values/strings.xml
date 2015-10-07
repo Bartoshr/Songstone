@@ -17,4 +17,10 @@
     <string name="navigation_item_stats">Statistic</string>
     <string name="navigation_item_sets">Settings</string>
 
+<!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="popup_artist">Artist</string>
+    <string name="popup_title">Title</string>
+
 </resources>

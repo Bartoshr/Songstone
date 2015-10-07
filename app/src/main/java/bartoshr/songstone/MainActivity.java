@@ -19,6 +19,7 @@ import android.os.Environment;
 import android.os.IBinder;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -33,13 +34,14 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.nononsenseapps.filepicker.FilePickerActivity;
 
-import bartoshr.songstone.Intefaces.OnItemClickListener;
+import java.io.File;
 
 
-public class MainActivity extends AppCompatActivity implements OnItemClickListener, ServiceConnection,
+public class MainActivity extends AppCompatActivity implements SongAdapter.OnItemClickListener, ServiceConnection,
         NavigationView.OnNavigationItemSelectedListener{
 
     private static final String TAG = "MainActivity";
@@ -54,6 +56,9 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
     private static final int FILE_CODE = 1;
     public static final String BUNDLE_TEXT = "BUNDLE_TEXT";
 
+    public static final String BUNDLE_TITLE = "BUNDLE_TITLE";
+    public static final String BUNDLE_ARTIST = "BUNDLE_ARTIST";
+
     SongsFinder finder;
     String songDirecory;
 
@@ -61,7 +66,7 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
     private Toolbar toolbar;
     private TextView emptyView;
     private RecyclerView mRecyclerView;
-    private RecyclerView.Adapter mAdapter;
+    private SongAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
     private LinearLayout parentView;
     private DrawerLayout drawerLayout;
@@ -80,6 +85,7 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
 
         preferences = getSharedPreferences(PREFERENCES_NAME, AppCompatActivity.MODE_PRIVATE);
         songDirecory = preferences.getString(PREFERENCES_DIR, /*"/storage/"*/ Environment.getExternalStorageDirectory().getPath());
+
 
         finder = new SongsFinder(songDirecory);
         receiver = new Receiver();
@@ -146,7 +152,7 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
                 startFilePicker();
                 break;*/
             case R.id.action_bluetooth:
-                Utils.toggleBluetooth();
+                Utils.toggleBluetooth(getApplicationContext());
                 break;
         }
 
@@ -229,6 +235,18 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
         startActivityForResult(i, FILE_CODE);
     }
 
+    private void startPopup() {
+        FragmentManager fm = getSupportFragmentManager();
+
+        Bundle bundle = new Bundle();
+        bundle.putString(BUNDLE_TITLE, "Example Title");
+        bundle.putString(BUNDLE_ARTIST, "Example Artist");
+        PopupFragment popupDialog = new PopupFragment();
+
+        popupDialog.setArguments(bundle);
+        popupDialog.show(fm, "popupFragment");
+    }
+
 
     @Override
     public void onServiceConnected(ComponentName name, IBinder service) {
@@ -263,6 +281,16 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
         broadcastIntent.putExtra(SongService.BROADCAST_EXTRA_GET_ORDER, SongService.ACTION_PLAY);
         broadcastIntent.putExtra(SongService.BROADCAST_EXTRA_GET_POSITION, position);
         local.sendBroadcast(broadcastIntent);
+    }
+
+    @Override
+    public boolean onItemLongClick(int position) {
+        startPopup();
+        /*Toast.makeText(this, "It's works", Toast.LENGTH_SHORT).show();
+        File file = new File(finder.songs.get(position).getPath());
+        file.delete();
+        mAdapter.remove(position);*/
+        return true;
     }
 
     @Override
@@ -305,7 +333,6 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setHomeButtonEnabled(true);
             mDrawerToggle.syncState();
-
         }
     }
 
