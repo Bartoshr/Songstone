@@ -1,0 +1,42 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:minWidth="300dp"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:padding="10dp"
+    android:orientation="vertical"  >
+
+    <EditText
+        android:id="@+id/popup_artist"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:hint="@string/popup_artist" />
+
+    <EditText
+        android:id="@+id/popup_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:hint="@string/popup_title" />
+
+    <Button
+        android:id="@+id/button_swap"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="@string/button_swap" />
+
+    <Button
+        android:id="@+id/button_accept"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="@string/button_accept" />
+
+    <Button
+        android:id="@+id/button_delete"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="@string/button_delete" />
+
+
+</LinearLayout>

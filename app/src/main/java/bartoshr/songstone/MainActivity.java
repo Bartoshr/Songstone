@@ -3,8 +3,6 @@ package bartoshr.songstone;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Fragment;
-
-import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -21,7 +19,6 @@ import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.LocalBroadcastManager;
-import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
@@ -34,11 +31,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.nononsenseapps.filepicker.FilePickerActivity;
-
-import java.io.File;
 
 
 public class MainActivity extends AppCompatActivity implements SongAdapter.OnItemClickListener, ServiceConnection,
@@ -55,22 +49,22 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnIte
     // Constans
     private static final int FILE_CODE = 1;
     public static final String BUNDLE_TEXT = "BUNDLE_TEXT";
+    public static final String BUNDLE_POSITION = "BUNDLE_POSITION";
 
-    public static final String BUNDLE_TITLE = "BUNDLE_TITLE";
-    public static final String BUNDLE_ARTIST = "BUNDLE_ARTIST";
-
-    SongsFinder finder;
+    //Data model
+    public static SongsFinder finder;
+    public static SongAdapter adapter;
     String songDirecory;
+
 
     // Views
     private Toolbar toolbar;
     private TextView emptyView;
-    private RecyclerView mRecyclerView;
-    private SongAdapter mAdapter;
-    private RecyclerView.LayoutManager mLayoutManager;
+    private RecyclerView recyclerView;
+    private RecyclerView.LayoutManager layoutManager;
     private LinearLayout parentView;
     private DrawerLayout drawerLayout;
-    NavigationView mNavigationView;
+    NavigationView navigationView;
 
     //Services
     private SongService songService;
@@ -95,16 +89,16 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnIte
         setUpNavDrawer();
 
         parentView = (LinearLayout) findViewById(R.id.parentView);
-        mNavigationView = (NavigationView) findViewById(R.id.nav_view);
-        mNavigationView.setNavigationItemSelectedListener(this);
+        navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
 
         emptyView = (TextView) findViewById(R.id.emptyView);
-        mRecyclerView = (RecyclerView) findViewById(R.id.songsview);
-        mRecyclerView.setHasFixedSize(true);
-        mLayoutManager = new LinearLayoutManager(this);
-        mRecyclerView.setLayoutManager(mLayoutManager);
-        mAdapter = new SongAdapter(this, finder.songs, this);
-        mRecyclerView.setAdapter(mAdapter);
+        recyclerView = (RecyclerView) findViewById(R.id.songsview);
+        recyclerView.setHasFixedSize(true);
+        layoutManager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(layoutManager);
+        adapter = new SongAdapter(this, finder.songs, this);
+        recyclerView.setAdapter(adapter);
 
 
         Log.i(TAG, "onCreate()");
@@ -116,11 +110,11 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnIte
     protected void onStart() {
         super.onStart();
         if (finder.songs.isEmpty()) {
-            mRecyclerView.setVisibility(View.GONE);
+            recyclerView.setVisibility(View.GONE);
             emptyView.setVisibility(View.VISIBLE);
         }
         else {
-            mRecyclerView.setVisibility(View.VISIBLE);
+            recyclerView.setVisibility(View.VISIBLE);
             emptyView.setVisibility(View.GONE);
         }
         this.bindService(songIntent, this, Context.BIND_AUTO_CREATE);
@@ -192,13 +186,13 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnIte
 
             @Override
             public void onAnimationEnded() {
-                mRecyclerView.setPadding(0,0,0, 115);
+                recyclerView.setPadding(0, 0, 0, 115);
             }
 
             @Override
             public void onAnimationStarted() {
-                if(mRecyclerView.getPaddingBottom() != 0)
-                    mRecyclerView.setPadding(0,0,0,0);
+                if(recyclerView.getPaddingBottom() != 0)
+                    recyclerView.setPadding(0,0,0,0);
             }
         });
 
@@ -235,12 +229,11 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnIte
         startActivityForResult(i, FILE_CODE);
     }
 
-    private void startPopup() {
-        FragmentManager fm = getSupportFragmentManager();
 
+    private void startPopup(int position) {
+        FragmentManager fm = getSupportFragmentManager();
         Bundle bundle = new Bundle();
-        bundle.putString(BUNDLE_TITLE, "Example Title");
-        bundle.putString(BUNDLE_ARTIST, "Example Artist");
+        bundle.putInt(BUNDLE_POSITION, position);
         PopupFragment popupDialog = new PopupFragment();
 
         popupDialog.setArguments(bundle);
@@ -251,9 +244,7 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnIte
     @Override
     public void onServiceConnected(ComponentName name, IBinder service) {
         Log.i(TAG, "Service Connected");
-
         SongService.MusicBinder binder = (SongService.MusicBinder)service;
-
         // Here's where we finally create the MusicService
         songService = binder.getService();
         songService.setList(finder.songs);
@@ -266,12 +257,10 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnIte
         songService.musicBound = false;
     }
 
-
     public void startService(){
         songIntent = new Intent(this, SongService.class);
         this.startService(songIntent);
     }
-
 
     // Invoke when List item is clicked
     @Override
@@ -285,11 +274,7 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnIte
 
     @Override
     public boolean onItemLongClick(int position) {
-        startPopup();
-        /*Toast.makeText(this, "It's works", Toast.LENGTH_SHORT).show();
-        File file = new File(finder.songs.get(position).getPath());
-        file.delete();
-        mAdapter.remove(position);*/
+        startPopup(position);
         return true;
     }
 

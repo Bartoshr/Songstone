@@ -23,7 +23,7 @@ public class Song {
 
     public void setTitle(String title) { this.title = title; }
     public void setPath(String path) { this.path = path; }
-    public void setArtist(String path) { this.artist = artist; }
+    public void setArtist(String artist) { this.artist = artist; }
 
     public String getTitle() { return this.title; }
     public String getPath() { return this.path; }

@@ -23,4 +23,8 @@
     <string name="popup_artist">Artist</string>
     <string name="popup_title">Title</string>
 
+    <string name="button_accept">Accept</string>
+    <string name="button_delete">Delete</string>
+    <string name="button_swap">Swap</string>
+
 </resources>
