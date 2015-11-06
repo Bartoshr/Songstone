@@ -285,9 +285,11 @@ public class SongService extends Service
 
     // Binding profits
 
-   public void setList( ArrayList<Song> songs){
+    public void setList( ArrayList<Song> songs){
         this.songs = songs;
     }
+
+    public Song getCurrentSong() {return songs.get(currentSong);}
 
     //Forefround
 

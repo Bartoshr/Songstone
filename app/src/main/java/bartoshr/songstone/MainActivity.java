@@ -31,6 +31,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.nononsenseapps.filepicker.FilePickerActivity;
 
@@ -55,7 +56,6 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnIte
     public static SongsFinder finder;
     public static SongAdapter adapter;
     String songDirecory;
-
 
     // Views
     private Toolbar toolbar;
@@ -248,6 +248,12 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnIte
         // Here's where we finally create the MusicService
         songService = binder.getService();
         songService.setList(finder.songs);
+
+        Song currentSong = songService.getCurrentSong();
+        String title = currentSong.getTitle();
+        String artist= currentSong.getArtist();
+        updateView(title, artist);
+
         songService.musicBound = true;
     }
 
