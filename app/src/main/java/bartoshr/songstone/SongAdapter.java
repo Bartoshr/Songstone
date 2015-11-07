@@ -30,6 +30,10 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
         this.clickListener = listener;
     }
 
+    public void changeList(List<Song> songList){
+        this.songList = songList;
+    }
+
 
     @Override
     public int getItemCount() {

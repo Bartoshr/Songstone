@@ -18,7 +18,10 @@ public class SongsFinder {
     public ArrayList<File> files = new ArrayList<File>();
 
     public SongsFinder(String directory) {
+        search(directory);
+    }
 
+    public void search(String directory){
         try {
             folders = listFolders(new File(directory));
             folders.add(new File(directory));

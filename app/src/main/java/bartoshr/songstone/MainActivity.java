@@ -108,6 +108,7 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnIte
 
     @Override
     protected void onStart() {
+
         super.onStart();
         if (finder.songs.isEmpty()) {
             recyclerView.setVisibility(View.GONE);
@@ -218,6 +219,11 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnIte
 
                 Uri uri = data.getData();
                 preferences.edit().putString(PREFERENCES_DIR, uri.getPath()).commit();
+                songDirecory = uri.getPath();
+                finder.search(songDirecory);
+                adapter.changeList(finder.songs);
+                adapter.notifyDataSetChanged();
+
                 Snackbar.make(parentView, "Directory changed :  " +uri.getPath(), Snackbar.LENGTH_SHORT).show();
         }
     }
