@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import java.io.File;
@@ -20,9 +21,9 @@ public class PopupFragment extends DialogFragment {
     EditText editArtist;
     EditText editTitle;
 
-    Button acceptButton;
-    Button deleteButton;
-    Button swapButton;
+    ImageButton acceptButton;
+    ImageButton deleteButton;
+    ImageButton swapButton;
 
     Song song;
 
@@ -53,9 +54,9 @@ public class PopupFragment extends DialogFragment {
         editTitle = (EditText) view.findViewById(R.id.popup_title);
         editTitle.setText(song.getTitle());
 
-        acceptButton = (Button) view.findViewById(R.id.button_accept);
-        deleteButton = (Button) view.findViewById(R.id.button_delete);
-        swapButton = (Button) view.findViewById(R.id.button_swap);
+        acceptButton = (ImageButton) view.findViewById(R.id.button_accept);
+        deleteButton = (ImageButton) view.findViewById(R.id.button_delete);
+        swapButton = (ImageButton) view.findViewById(R.id.button_swap);
 
         acceptButton.setOnClickListener(new View.OnClickListener() {
             @Override

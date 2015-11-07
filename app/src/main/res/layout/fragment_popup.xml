@@ -18,25 +18,40 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
+        android:paddingTop="10dp"
         android:hint="@string/popup_title" />
 
-    <Button
-        android:id="@+id/button_swap"
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/button_swap" />
+        android:paddingTop="10dp"
+        android:minWidth="300dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:orientation="horizontal"  >
 
-    <Button
-        android:id="@+id/button_accept"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/button_accept" />
 
-    <Button
-        android:id="@+id/button_delete"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/button_delete" />
+        <ImageButton
+            android:id="@+id/button_accept"
+            android:src="@drawable/ic_action_accept"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent" />
+
+        <ImageButton
+            android:id="@+id/button_delete"
+            android:src="@drawable/ic_action_delete"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent" />
+
+        <ImageButton
+            android:id="@+id/button_swap"
+            android:src="@drawable/ic_action_swap"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent" />
+
+        </LinearLayout>
 
 
 </LinearLayout>

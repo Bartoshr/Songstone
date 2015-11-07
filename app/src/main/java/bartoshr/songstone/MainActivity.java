@@ -26,9 +26,11 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -160,8 +162,10 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnIte
         menuItem.setChecked(true);
         switch (menuItem.getItemId()) {
             case R.id.navigation_item_stats:
+                    drawerLayout.closeDrawers();
                 return true;
             case R.id.navigation_item_sets:
+                    drawerLayout.closeDrawers();
                 return true;
             case R.id.navigation_item_show_path:
                     startFilePicker();
@@ -220,11 +224,12 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnIte
                 Uri uri = data.getData();
                 preferences.edit().putString(PREFERENCES_DIR, uri.getPath()).commit();
                 songDirecory = uri.getPath();
+
                 finder.search(songDirecory);
                 adapter.changeList(finder.songs);
                 adapter.notifyDataSetChanged();
 
-                Snackbar.make(parentView, "Directory changed :  " +uri.getPath(), Snackbar.LENGTH_SHORT).show();
+                Toast.makeText(this,  "Directory changed :  " + uri.getPath(), Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -261,9 +266,11 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnIte
         songService.setList(finder.songs);
 
         Song currentSong = songService.getCurrentSong();
-        String title = currentSong.getTitle();
-        String artist= currentSong.getArtist();
-        updateView(title, artist);
+        if(currentSong != null) {
+            String title = currentSong.getTitle();
+            String artist = currentSong.getArtist();
+            updateView(title, artist);
+        }
 
         songService.musicBound = true;
     }
@@ -271,6 +278,9 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnIte
     @Override
     public void onServiceDisconnected(ComponentName name) {
         Log.i(TAG, "Service Disconected");
+
+        Toast.makeText(this, "Service Disconected", Toast.LENGTH_SHORT).show();
+
         songService.musicBound = false;
     }
 

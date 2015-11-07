@@ -289,7 +289,10 @@ public class SongService extends Service
         this.songs = songs;
     }
 
-    public Song getCurrentSong() {return songs.get(currentSong);}
+    public Song getCurrentSong() {
+        if(currentSong >songs.size()-1) return null;
+        return songs.get(currentSong);
+    }
 
     //Forefround
 
