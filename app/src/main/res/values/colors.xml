@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Drawer -->
+    <color name="folderColor">#999</color>
+
 
     <!-- View colors -->
 

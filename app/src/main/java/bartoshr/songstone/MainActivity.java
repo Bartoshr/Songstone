@@ -162,6 +162,10 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnIte
                 return true;
             case R.id.navigation_item_sets:
                 return true;
+            case R.id.navigation_item_show_path:
+                    startFilePicker();
+                    drawerLayout.closeDrawers();
+                return true;
             default:
                 return true;
         }
@@ -177,7 +181,7 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnIte
         }
 
         Bundle bundle = new Bundle();
-        bundle.putString(BUNDLE_TEXT, title+" - "+artist);
+        bundle.putString(BUNDLE_TEXT, title + " - " + artist);
 
         PanelFragment fragment = (PanelFragment) PanelFragment.instantiate(this, PanelFragment.class.getName());
         fragment.setArguments(bundle);
@@ -191,8 +195,8 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnIte
 
             @Override
             public void onAnimationStarted() {
-                if(recyclerView.getPaddingBottom() != 0)
-                    recyclerView.setPadding(0,0,0,0);
+                if (recyclerView.getPaddingBottom() != 0)
+                    recyclerView.setPadding(0, 0, 0, 0);
             }
         });
 
@@ -225,7 +229,8 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnIte
         i.putExtra(FilePickerActivity.EXTRA_MODE, FilePickerActivity.MODE_DIR);
 
         // Configure initial directory like so
-        i.putExtra(FilePickerActivity.EXTRA_START_PATH, "/storage");
+
+        i.putExtra(FilePickerActivity.EXTRA_START_PATH, songDirecory);
         startActivityForResult(i, FILE_CODE);
     }
 
@@ -286,7 +291,14 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnIte
 
     @Override
     protected void onPause() {
+
+        Fragment fragment = getFragmentManager().findFragmentByTag(PANEL_FRAGMENT_TAG);
+        getFragmentManager().beginTransaction().setCustomAnimations(R.animator.slide_up,
+                R.animator.slide_down)
+                .remove(fragment).commit();
+
         super.onPause();
+
         unregisterReceiver(receiver);
     }
 
@@ -295,7 +307,6 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnIte
         unbindService(this);
         super.onStop();
     }
-
 
     class Receiver extends BroadcastReceiver {
         @Override
