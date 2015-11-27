@@ -90,7 +90,7 @@ public class SongsFinder {
 
             String fileName = file.getName();
             fileName = fileName.replaceAll("\\(.*?\\)", "");
-            fileName = fileName.replaceAll("\\W*\\d+( |. |.)", "");
+            //fileName = fileName.replaceAll("\\W*\\d+( |. |.)", "");
             fileName = fileName.substring(0, fileName.length() - 4);
             fileName = fileName.substring(0,1).toUpperCase()+fileName.substring(1);
 

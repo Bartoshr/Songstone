@@ -294,6 +294,15 @@ public class SongService extends Service
         return songs.get(currentSong);
     }
 
+    public int getCurrentPosition()
+    {
+        return player.getCurrentPosition();
+    }
+
+    public void setCurrentPosition(int position){
+        player.seekTo(position);
+    }
+
     //Forefround
 
     void setForeground(String artist, String title){

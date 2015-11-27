@@ -1,16 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Drawer -->
-    <color name="folderColor">#999</color>
 
-
-    <!-- View colors -->
-
-    <color name="emptyView">#FF5B5B5B</color>
-
-
-    <color name="panelBackground">#FF5B5B5B</color>
-    <color name="panelText">#FFFFFF</color>
 
     <!-- Theme colors -->
 
@@ -23,11 +13,26 @@
     <color name="navigationBarColor">#222222</color>
     <color name="windowBackground">#FFF3F3F3</color>
 
+    <!-- Drawer -->
+    <color name="folderColor">#999</color>
+
+
+    <!-- View colors -->
+    <color name="emptyView">#FF5B5B5B</color>
+
+    <!--Panel Color-->
+    <color name="panelBackground">#FF5B5B5B</color>
+    <color name="panelText">#FFFFFF</color>
+
 
     <!-- Toolbar specific colors -->
     <color name="textColorToolbar">#FFFFFF</color>
     <color name="textColorToolbarMenu">#FFFFFF</color>
 
+    <!-- Collection Item Selector colors -->
+    <color name="collectionPressed">#ECEFF1</color>
+    <color name="collectionSelected">#FFF3F3F3</color>
+    <color name="collectionNormal">#FFF3F3F3</color>
 
 
 </resources>

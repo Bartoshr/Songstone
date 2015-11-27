@@ -51,7 +51,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
         final LayoutInflater inflater = LayoutInflater.
                 from(viewGroup.getContext());
 
-       SongViewHolder holder = new SongViewHolder(MaterialRippleLayout.on(inflater.inflate(R.layout.list_item, viewGroup, false))
+       SongViewHolder holder = new SongViewHolder(MaterialRippleLayout.on(inflater.inflate(R.layout.song_item, viewGroup, false))
                 .rippleOverlay(true)
                 .rippleAlpha(0.2f)
                 .rippleColor(0xFF585858)
@@ -70,8 +70,8 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
     }
 
     public interface OnItemClickListener {
-        public void onItemClick(int position);
-        public boolean onItemLongClick(int position);
+        public void onSongItemClick(int position);
+        public boolean onSongItemLongClick(int position);
     }
 
 
@@ -90,12 +90,12 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
 
         @Override
         public void onClick(View view) {
-            clickListener.onItemClick(getAdapterPosition());
+            clickListener.onSongItemClick(getAdapterPosition());
         }
 
         @Override
         public boolean onLongClick(View view) {
-            return clickListener.onItemLongClick(getAdapterPosition());
+            return clickListener.onSongItemLongClick(getAdapterPosition());
         }
     }
 }
