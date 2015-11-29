@@ -306,7 +306,7 @@ public class SongService extends Service
 
     //Forefround
 
-    void setForeground(String artist, String title){
+    void setForeground(String artist, String title){ 
         NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
         Notification notification = new Notification.Builder(this)

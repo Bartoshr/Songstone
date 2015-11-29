@@ -35,6 +35,15 @@ public class Song {
 
 
     @Override
+    public boolean equals(Object o) {
+        if(o instanceof Song) {
+            if(this.title.compareTo(((Song) o).getTitle()) == 0
+                    && this.artist.compareTo(((Song) o).getArtist()) == 0) return true;
+        }
+        return false;
+    }
+
+    @Override
     public String toString() {
         return getTitle();
     }

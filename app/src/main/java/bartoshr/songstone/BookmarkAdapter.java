@@ -47,9 +47,10 @@ public class BookmarkAdapter extends RecyclerView.Adapter<BookmarkAdapter.ItemVi
 
     public interface OnItemClickListener {
         public void onBookmarkItemClick(int position);
+        public boolean onBookmarkItemLongClick(int position);
     }
 
-    public static class ItemViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public static class ItemViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
         private TextView nameView;
         private OnItemClickListener clickListener;
 
@@ -57,11 +58,18 @@ public class BookmarkAdapter extends RecyclerView.Adapter<BookmarkAdapter.ItemVi
             super(itemView);
             nameView = (TextView) itemView.findViewById(R.id.nameView);
             nameView.setOnClickListener(this);
+            nameView.setOnLongClickListener(this);
         }
 
         @Override
         public void onClick(View view) {
             clickListener.onBookmarkItemClick(getAdapterPosition());
+        }
+
+
+        @Override
+        public boolean onLongClick(View v) {
+            return clickListener.onBookmarkItemLongClick(getAdapterPosition());
         }
     }
 }

@@ -17,6 +17,7 @@ import android.os.Environment;
 import android.os.IBinder;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
@@ -32,7 +33,9 @@ import android.widget.Toast;
 
 import com.nononsenseapps.filepicker.FilePickerActivity;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Objects;
 
 import io.paperdb.Paper;
 
@@ -86,7 +89,7 @@ public class MainActivity extends AppCompatActivity implements
         setContentView(R.layout.activity_main);
 
         preferences = getSharedPreferences(PREFERENCES_NAME, AppCompatActivity.MODE_PRIVATE);
-        songDirecory = preferences.getString(PREFERENCES_DIR, /*"/storage/"*/ Environment.getExternalStorageDirectory().getPath());
+        songDirecory = preferences.getString(PREFERENCES_DIR, /*"/storage/"*/ new File("storage/sdcard1/").getPath());
 
 
         Paper.init(this);
@@ -126,7 +129,7 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     public void setDrawerBookmarksMenu(){
-        bookmarks = new ArrayList<Bookmark>();
+        bookmarks = Paper.book().read("Bookmarks", new ArrayList<Bookmark>());
 
         bookmarksView = (RecyclerView) findViewById(R.id.bookmarksView);
         bookmarksView.setLayoutManager(new LinearLayoutManager(this));
@@ -257,8 +260,13 @@ public class MainActivity extends AppCompatActivity implements
 
         // Configure initial directory like so
 
-        i.putExtra(FilePickerActivity.EXTRA_START_PATH, songDirecory);
-        startActivityForResult(i, FILE_CODE);
+        File f = new File(songDirecory);
+        if(f.canWrite()) {
+            i.putExtra(FilePickerActivity.EXTRA_START_PATH, songDirecory);
+            startActivityForResult(i, FILE_CODE);
+        } else {
+            Toast.makeText(this, "Don't have permission", Toast.LENGTH_SHORT).show();
+        }
     }
 
     // Shows Popup for editing artist name and  title
@@ -305,20 +313,6 @@ public class MainActivity extends AppCompatActivity implements
         this.startService(songIntent);
     }
 
-    @Override
-    public void onSongItemClick(int position) {
-        LocalBroadcastManager local = LocalBroadcastManager.getInstance(getApplicationContext());
-        Intent broadcastIntent = new Intent(SongService.BROADCAST_ORDER);
-        broadcastIntent.putExtra(SongService.BROADCAST_EXTRA_GET_ORDER, SongService.ACTION_PLAY);
-        broadcastIntent.putExtra(SongService.BROADCAST_EXTRA_GET_POSITION, position);
-        local.sendBroadcast(broadcastIntent);
-    }
-
-    @Override
-    public boolean onSongItemLongClick(int position) {
-        startPopup(position);
-        return true;
-    }
 
     @Override
     protected void onPause() {
@@ -336,25 +330,61 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     protected void onStop() {
         unbindService(this);
+
+        //Saving Bookmarks before exit
+        Paper.book().write("Bookmarks", bookmarks);
+
         super.onStop();
     }
 
     @Override
     public void onMenuItemClick(int position) {
-
         switch(position) {
             case 2 /*Change Path*/:
                 startFilePicker();
                 break;
         }
+        drawerLayout.closeDrawer(GravityCompat.START);
+    }
+
+    @Override
+    public void onSongItemClick(int position) {
+        LocalBroadcastManager local = LocalBroadcastManager.getInstance(getApplicationContext());
+        Intent broadcastIntent = new Intent(SongService.BROADCAST_ORDER);
+        broadcastIntent.putExtra(SongService.BROADCAST_EXTRA_GET_ORDER, SongService.ACTION_PLAY);
+        broadcastIntent.putExtra(SongService.BROADCAST_EXTRA_GET_POSITION, position);
+        local.sendBroadcast(broadcastIntent);
+    }
+
+    @Override
+    public boolean onSongItemLongClick(int position) {
+        startPopup(position);
+        return true;
+    }
+
+    @Override
+    public void onBookmarkItemClick(int itemPosition) {
+        Bookmark bookmark = bookmarks.get(itemPosition);
+        int position  = finder.songs.indexOf(bookmark.song);
+
+        if(position != -1) {
+            LocalBroadcastManager local = LocalBroadcastManager.getInstance(getApplicationContext());
+            Intent broadcastIntent = new Intent(SongService.BROADCAST_ORDER);
+            broadcastIntent.putExtra(SongService.BROADCAST_EXTRA_GET_ORDER, SongService.ACTION_PLAY);
+            broadcastIntent.putExtra(SongService.BROADCAST_EXTRA_GET_POSITION, position);
+            local.sendBroadcast(broadcastIntent);
+        } else {
+            Toast.makeText(MainActivity.this, "Position : " + position, Toast.LENGTH_SHORT).show();
+        }
+        drawerLayout.closeDrawer(GravityCompat.START);
 
     }
 
     @Override
-    public void onBookmarkItemClick(int position) {
-        Bookmark bookmark = bookmarks.get(position);
-
-        Toast.makeText(this, "Bookmark:" + bookmark.song.getTitle(), Toast.LENGTH_SHORT).show();
+    public boolean onBookmarkItemLongClick(int position) {
+        bookmarks.remove(position);
+        bookmarkAdapter.notifyItemRemoved(position);
+        return true;
     }
 
     @Override
@@ -369,7 +399,7 @@ public class MainActivity extends AppCompatActivity implements
     public boolean onPanelLongCLick() {
         if(songService.state == SongService.State.paused) {
             Song song = songService.getCurrentSong();
-            Bookmark bookmark = new Bookmark(song, 1);
+            final Bookmark bookmark = new Bookmark(song, 1);
             bookmarks.add(bookmark);
             bookmarkAdapter.notifyItemInserted(bookmarks.size()-1);
             Toast.makeText(this, "Bookmark Added", Toast.LENGTH_SHORT).show();
