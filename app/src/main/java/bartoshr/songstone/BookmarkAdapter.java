@@ -1,25 +1,24 @@
 package bartoshr.songstone;
 
-/**
- * Created by bartosh on 27.11.2015.
- */
-
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-public class MenusAdapter extends  RecyclerView.Adapter<MenusAdapter.ItemViewHolder> {
+import java.util.ArrayList;
 
-    private String names[];
-    private int glyphs[];
+/**
+ * Created by bartosh on 28.11.2015.
+ */
+public class BookmarkAdapter extends RecyclerView.Adapter<BookmarkAdapter.ItemViewHolder> {
+
+    private ArrayList<Bookmark> names;
 
     OnItemClickListener clickListener;
 
-    public MenusAdapter(String names[], int glyphs[], OnItemClickListener clickListener){
+    public BookmarkAdapter(ArrayList<Bookmark> names, OnItemClickListener clickListener){
         this.names = names;
-        this.glyphs = glyphs;
         this.clickListener = clickListener;
     }
 
@@ -27,7 +26,7 @@ public class MenusAdapter extends  RecyclerView.Adapter<MenusAdapter.ItemViewHol
     public ItemViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
         final LayoutInflater inflater = LayoutInflater.
                 from(viewGroup.getContext());
-        View contentView = inflater.inflate(R.layout.menu_item, viewGroup, false);
+        View contentView = inflater.inflate(R.layout.bookmark_item, viewGroup, false);
         ItemViewHolder holder = new ItemViewHolder(contentView);
         holder.clickListener = clickListener;
         return holder;
@@ -35,19 +34,19 @@ public class MenusAdapter extends  RecyclerView.Adapter<MenusAdapter.ItemViewHol
 
     @Override
     public void onBindViewHolder(ItemViewHolder itemViewHolder, int i) {
-        String name = names[i];
-        int glyph = glyphs[i];
+        Song song = names.get(i).song;
+        String name = song.getTitle();
         itemViewHolder.nameView.setText(name);
-        itemViewHolder.nameView.setCompoundDrawablesWithIntrinsicBounds(glyph, 0, 0, 0);
+        itemViewHolder.nameView.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_action_bookmark, 0, 0, 0);
     }
 
     @Override
     public int getItemCount() {
-        return names.length;
+        return names.size();
     }
 
     public interface OnItemClickListener {
-        public void onMenuItemClick(int position);
+        public void onBookmarkItemClick(int position);
     }
 
     public static class ItemViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -62,7 +61,9 @@ public class MenusAdapter extends  RecyclerView.Adapter<MenusAdapter.ItemViewHol
 
         @Override
         public void onClick(View view) {
-            clickListener.onMenuItemClick(getAdapterPosition());
+            clickListener.onBookmarkItemClick(getAdapterPosition());
         }
     }
 }
+
+

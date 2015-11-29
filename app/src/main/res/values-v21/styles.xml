@@ -8,6 +8,7 @@
         <item name="android:textColorPrimary">@color/textColorPrimary</item>
         <item name="android:windowBackground">@color/windowBackground</item>
 
+
         <!-- Android 5.0 spec. -->
         <item name="android:navigationBarColor">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>

@@ -5,6 +5,7 @@
     android:layout_height="wrap_content"
     android:background="@drawable/select"
     android:textAppearance="?android:attr/textAppearanceListItemSmall"
+    android:textColor="@color/menuItemColor"
     android:gravity="center_vertical"
     android:paddingLeft="?android:attr/listPreferredItemPaddingLeft"
     android:drawablePadding="30dp"

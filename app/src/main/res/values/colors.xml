@@ -15,6 +15,7 @@
 
     <!-- Drawer -->
     <color name="folderColor">#999</color>
+    <color name="menuItemColor">#222</color>
 
 
     <!-- View colors -->

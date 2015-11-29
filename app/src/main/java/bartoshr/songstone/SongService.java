@@ -5,6 +5,7 @@ package bartoshr.songstone;
  */
 
 import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -306,17 +307,21 @@ public class SongService extends Service
     //Forefround
 
     void setForeground(String artist, String title){
+        NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+
         Notification notification = new Notification.Builder(this)
                 .setSmallIcon(R.drawable.ic_stat_note)
                 .setContentTitle(title)
                 .setContentText(artist)
                 .build();
 
-        Intent notificationIntent = new Intent(this, MainActivity.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
-        notification.setLatestEventInfo(this, artist,
-                title, pendingIntent);
-        startForeground(ONGOING_NOTIFICATION_ID, notification);
+        manager.notify(11, notification);
+
+//        Intent notificationIntent = new Intent(this, MainActivity.class);
+//        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
+//        notification.setLatestEventInfo(this, artist,
+//                title, pendingIntent);
+//        startForeground(ONGOING_NOTIFICATION_ID, notification);
     }
 
     void removeForeground(){

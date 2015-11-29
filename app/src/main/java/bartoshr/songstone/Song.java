@@ -10,6 +10,10 @@ public class Song {
     private String path = "";
     private String artist = "";
 
+    public Song(){
+
+    }
+
     public Song(String title, String path) {
         this.path = path;
         this.title = title;

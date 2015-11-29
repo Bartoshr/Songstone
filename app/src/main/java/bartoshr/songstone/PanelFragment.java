@@ -5,7 +5,6 @@ import android.animation.AnimatorInflater;
 import android.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.content.LocalBroadcastManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -16,6 +15,7 @@ import android.widget.TextView;
 public class PanelFragment extends Fragment {
 
     public OnAnimationChanged animationChangedListener;
+    public OnPanelClickListener onPanelClickListener;
 
     public PanelFragment() {
         // Required empty public constructor
@@ -45,10 +45,14 @@ public class PanelFragment extends Fragment {
         textView.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                LocalBroadcastManager local = LocalBroadcastManager.getInstance(getActivity());
-                Intent broadcastIntent = new Intent(SongService.BROADCAST_ORDER);
-                broadcastIntent.putExtra(SongService.BROADCAST_EXTRA_GET_ORDER, SongService.ACTION_TOGGLE);
-                local.sendBroadcast(broadcastIntent);
+                onPanelClickListener.onPanelClick();
+            }
+        });
+
+        textView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                return onPanelClickListener.onPanelLongCLick();
             }
         });
 
@@ -95,9 +99,18 @@ public class PanelFragment extends Fragment {
         this.animationChangedListener = animationChangedListener;
     }
 
+    public void setOnPanelClickListener(OnPanelClickListener onPanelClickListener){
+        this.onPanelClickListener = onPanelClickListener;
+    }
+
 
     public interface OnAnimationChanged{
         public void onAnimationEnded();
         public void onAnimationStarted();
+    }
+
+    public interface OnPanelClickListener{
+        public void onPanelClick();
+        public boolean onPanelLongCLick();
     }
 }

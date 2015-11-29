@@ -27,15 +27,20 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.nononsenseapps.filepicker.FilePickerActivity;
 
+import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity implements SongAdapter.OnItemClickListener,
-        MenusAdapter.OnItemClickListener, ServiceConnection{
+import io.paperdb.Paper;
+
+
+public class MainActivity extends AppCompatActivity implements
+        PanelFragment.OnPanelClickListener,
+        SongAdapter.OnItemClickListener,
+        MenusAdapter.OnItemClickListener, BookmarkAdapter.OnItemClickListener, ServiceConnection{
 
     private static final String TAG = "MainActivity";
     private static final String PANEL_FRAGMENT_TAG = "PANEL_FRAGMENT_TAG";
@@ -50,10 +55,14 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnIte
     public static final String BUNDLE_TEXT = "BUNDLE_TEXT";
     public static final String BUNDLE_POSITION = "BUNDLE_POSITION";
 
-    //Data model
+    //Adapters and Finders
     public static SongsFinder finder;
-    public static SongAdapter adapter;
+    public static SongAdapter songAdapter;
+    public static BookmarkAdapter bookmarkAdapter;
     String songDirecory;
+
+    //Store saved bookmarks
+    ArrayList<Bookmark> bookmarks;
 
     // Views
     private Toolbar toolbar;
@@ -61,8 +70,8 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnIte
 
     private RecyclerView songsView;
     private RecyclerView optionsView;
+    private RecyclerView bookmarksView;
 
-    private LinearLayout parentView;
     private DrawerLayout drawerLayout;
 
     //Services
@@ -80,6 +89,8 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnIte
         songDirecory = preferences.getString(PREFERENCES_DIR, /*"/storage/"*/ Environment.getExternalStorageDirectory().getPath());
 
 
+        Paper.init(this);
+
         finder = new SongsFinder(songDirecory);
         receiver = new Receiver();
 
@@ -87,18 +98,12 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnIte
         setUpToolbar();
         setUpNavDrawer();
 
-        parentView = (LinearLayout) findViewById(R.id.parentView);
-
         emptyView = (TextView) findViewById(R.id.emptyView);
 
-        songsView = (RecyclerView) findViewById(R.id.songsview);
-        songsView.setHasFixedSize(true);
-        songsView.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new SongAdapter(this, finder.songs, this);
-        songsView.setAdapter(adapter);
 
-
+        setSongsView();
         setDrawerOptionsMenu();
+        setDrawerBookmarksMenu();
 
 
         Log.i(TAG, "onCreate()");
@@ -118,6 +123,23 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnIte
         optionsView.setHasFixedSize(true);
         optionsView.setLayoutManager(new LinearLayoutManager(this));
         optionsView.setAdapter(new MenusAdapter(options, glyphs, this));
+    }
+
+    public void setDrawerBookmarksMenu(){
+        bookmarks = new ArrayList<Bookmark>();
+
+        bookmarksView = (RecyclerView) findViewById(R.id.bookmarksView);
+        bookmarksView.setLayoutManager(new LinearLayoutManager(this));
+        bookmarkAdapter = new BookmarkAdapter(bookmarks, this);
+        bookmarksView.setAdapter(bookmarkAdapter);
+    }
+
+    public void setSongsView(){
+        songsView = (RecyclerView) findViewById(R.id.songsview);
+        songsView.setHasFixedSize(true);
+        songsView.setLayoutManager(new LinearLayoutManager(this));
+        songAdapter = new SongAdapter(this, finder.songs, this);
+        songsView.setAdapter(songAdapter);
     }
 
     @Override
@@ -184,6 +206,7 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnIte
         PanelFragment fragment = (PanelFragment) PanelFragment.instantiate(this, PanelFragment.class.getName());
         fragment.setArguments(bundle);
 
+        fragment.setOnPanelClickListener(this);
         fragment.setAnimationChangedListener(new PanelFragment.OnAnimationChanged() {
 
             @Override
@@ -219,8 +242,8 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnIte
                 songDirecory = uri.getPath();
 
                 finder.search(songDirecory);
-                adapter.changeList(finder.songs);
-                adapter.notifyDataSetChanged();
+                songAdapter.changeList(finder.songs);
+                songAdapter.notifyDataSetChanged();
 
                 Toast.makeText(this,  "Directory changed :  " + uri.getPath(), Toast.LENGTH_SHORT).show();
         }
@@ -327,6 +350,33 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnIte
 
     }
 
+    @Override
+    public void onBookmarkItemClick(int position) {
+        Bookmark bookmark = bookmarks.get(position);
+
+        Toast.makeText(this, "Bookmark:" + bookmark.song.getTitle(), Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onPanelClick() {
+        LocalBroadcastManager local = LocalBroadcastManager.getInstance(this);
+        Intent broadcastIntent = new Intent(SongService.BROADCAST_ORDER);
+        broadcastIntent.putExtra(SongService.BROADCAST_EXTRA_GET_ORDER, SongService.ACTION_TOGGLE);
+        local.sendBroadcast(broadcastIntent);
+    }
+
+    @Override
+    public boolean onPanelLongCLick() {
+        if(songService.state == SongService.State.paused) {
+            Song song = songService.getCurrentSong();
+            Bookmark bookmark = new Bookmark(song, 1);
+            bookmarks.add(bookmark);
+            bookmarkAdapter.notifyItemInserted(bookmarks.size()-1);
+            Toast.makeText(this, "Bookmark Added", Toast.LENGTH_SHORT).show();
+        }
+        return true;
+    }
+
     class Receiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -355,6 +405,11 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnIte
             getSupportActionBar().setHomeButtonEnabled(true);
             mDrawerToggle.syncState();
         }
+    }
+
+    public void doNothing(View v){
+        // handle click on DrawerLayout to prevent
+        // propagate behind
     }
 
 }

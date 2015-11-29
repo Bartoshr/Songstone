@@ -8,7 +8,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
@@ -72,10 +71,14 @@ public class PopupFragment extends DialogFragment {
                 File newFile = new File(filePath+File.separator+song.getArtist()+" - "+song.getTitle()+".mp3");
                 song.setPath(newFile.getPath());
 
-                file.renameTo(newFile);
+                if(file.canWrite()) {
+                    file.renameTo(newFile);
+                } else {
+                    Toast.makeText(getActivity(), "Dont't have permision", Toast.LENGTH_SHORT).show();
+                }
 
                 getDialog().dismiss();
-                MainActivity.adapter.notifyItemChanged(position);
+                MainActivity.songAdapter.notifyItemChanged(position);
             }
         });
 
@@ -83,9 +86,17 @@ public class PopupFragment extends DialogFragment {
             @Override
             public void onClick(View view) {
                 File file = new File(song.getPath());
-                file.delete();
+
+                Toast.makeText(getActivity(), song.getPath().toString(), Toast.LENGTH_LONG).show();
+
+                if(file.canWrite()) {
+                    file.delete();
+                } else {
+                    Toast.makeText(getActivity(), "Dont't have permision", Toast.LENGTH_SHORT).show();
+                }
+
                 getDialog().dismiss();
-                MainActivity.adapter.remove(position);
+                MainActivity.songAdapter.remove(position);
             }
         });
 
