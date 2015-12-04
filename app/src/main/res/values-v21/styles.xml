@@ -26,6 +26,8 @@
         <!-- These are important. Handled by toolbar -->
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+
+
     </style>
 
     <style name="FilePickerTheme.Dialog" parent="Theme.AppCompat.Light.Dialog.Alert">

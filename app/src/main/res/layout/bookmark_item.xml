@@ -6,6 +6,7 @@
     android:background="@drawable/select"
     android:textAppearance="?android:attr/textAppearanceListItemSmall"
     android:textSize="14sp"
+    android:textColor="@color/menuItemColor"
     android:gravity="center_vertical"
     android:paddingLeft="?android:attr/listPreferredItemPaddingLeft"
     app:paddingStart="15dp"

@@ -36,7 +36,9 @@
         <!-- These are important. Handled by toolbar -->
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
-        <item name="colorButtonNormal">#000</item>
+        <item name="colorButtonNormal">@color/folderColor</item>
+
+        <item name="nnf_toolbarTheme">@style/ThemeOverlay.AppCompat.Dark.ActionBar</item>
     </style>
 
     <style name="FilePickerTheme.Dialog" parent="Theme.AppCompat.Light.Dialog.Alert">

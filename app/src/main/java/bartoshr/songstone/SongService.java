@@ -20,7 +20,10 @@ import android.os.IBinder;
 import android.os.PowerManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.media.session.MediaSessionCompat;
+import android.telephony.PhoneStateListener;
+import android.telephony.TelephonyManager;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -50,10 +53,12 @@ public class SongService extends Service
 
     //Current Song
     public int currentSong = 0;
+    public int songPosition = 0;
 
     //Filter
     public static final String BROADCAST_ORDER = "bartoshr.songstone.MUSIC_SERVICE";
     public static final String BROADCAST_EXTRA_GET_ORDER = "bartoshr.songstone.ORDER";
+    public static final String BROADCAST_EXTRA_GET_SONG_POSITION = "bartoshr.songstone.SONG_POSITION";
     public static final String BROADCAST_EXTRA_GET_POSITION = "bartoshr.songstone.POSITION";
 
     //Actions
@@ -95,6 +100,9 @@ public class SongService extends Service
         mSession.setActive(true);
 
         state = State.stopped;
+
+        TelephonyManager manager = (TelephonyManager) this.getSystemService(Context.TELEPHONY_SERVICE);
+        manager.listen(phoneStateListener, PhoneStateListener.LISTEN_CALL_STATE);
 
     }
 
@@ -152,6 +160,7 @@ public class SongService extends Service
 
         try {
             player.setDataSource(songs.get(currentSong).getPath());
+            //player.seekTo(songPosition);
         }
         catch(IOException io) {
             Log.e("Songtone", "IOException: couldn't change the song", io);
@@ -159,8 +168,6 @@ public class SongService extends Service
         catch(Exception e) {
             Log.e("Songstone", "Error when changing the song", e);
         }
-
-
 
         player.prepareAsync();
         setForeground(artist, title);
@@ -235,6 +242,7 @@ public class SongService extends Service
 
     @Override
     public void onPrepared(MediaPlayer mediaPlayer) {
+        player.seekTo(songPosition);
         player.start();
         state = State.playing;
     }
@@ -248,8 +256,11 @@ public class SongService extends Service
             String order = intent.getStringExtra(SongService.BROADCAST_EXTRA_GET_ORDER);
 
             if (order.equals(SongService.ACTION_PLAY)) {
+
                 currentSong = intent.getIntExtra(SongService.BROADCAST_EXTRA_GET_POSITION, currentSong);
+                songPosition = intent.getIntExtra(SongService.BROADCAST_EXTRA_GET_SONG_POSITION, 0);
                 playSong();
+
             } else if (order.equals(SongService.ACTION_PAUSE)) {
                 pausePlayer();
             } else if (order.equals(SongService.ACTION_TOGGLE)) {
@@ -262,6 +273,32 @@ public class SongService extends Service
         }
     };
 
+
+    private final PhoneStateListener phoneStateListener = new PhoneStateListener() {
+
+        boolean phoned = false;
+
+        @Override
+        public void onCallStateChanged(int state, String incomingNumber) {
+            switch (state) {
+                case TelephonyManager.CALL_STATE_IDLE:
+                    if(phoned) {
+                        resumePlayer();
+                        phoned = false;
+                    }
+                    break;
+                case TelephonyManager.CALL_STATE_RINGING:
+                    if(player.isPlaying()) {
+                        pausePlayer();
+                        phoned = true;
+                    }
+                    break;
+                case TelephonyManager.CALL_STATE_OFFHOOK:
+                    break;
+            }
+            super.onCallStateChanged(state, incomingNumber);
+        }
+    };
 
     // Binding things
 
@@ -306,22 +343,20 @@ public class SongService extends Service
 
     //Forefround
 
-    void setForeground(String artist, String title){ 
+    void setForeground(String artist, String title){
         NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+
+        Intent notificationIntent = new Intent(this, MainActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
 
         Notification notification = new Notification.Builder(this)
                 .setSmallIcon(R.drawable.ic_stat_note)
                 .setContentTitle(title)
                 .setContentText(artist)
+                .setContentIntent(pendingIntent)
                 .build();
 
-        manager.notify(11, notification);
-
-//        Intent notificationIntent = new Intent(this, MainActivity.class);
-//        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
-//        notification.setLatestEventInfo(this, artist,
-//                title, pendingIntent);
-//        startForeground(ONGOING_NOTIFICATION_ID, notification);
+        startForeground(ONGOING_NOTIFICATION_ID, notification);
     }
 
     void removeForeground(){

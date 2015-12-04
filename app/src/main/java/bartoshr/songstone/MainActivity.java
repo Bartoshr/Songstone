@@ -89,7 +89,7 @@ public class MainActivity extends AppCompatActivity implements
         setContentView(R.layout.activity_main);
 
         preferences = getSharedPreferences(PREFERENCES_NAME, AppCompatActivity.MODE_PRIVATE);
-        songDirecory = preferences.getString(PREFERENCES_DIR, /*"/storage/"*/ new File("storage/sdcard1/").getPath());
+        songDirecory = preferences.getString(PREFERENCES_DIR, /*"/storage/"*/ new File("/storage/sdcard/Music").getPath());
 
 
         Paper.init(this);
@@ -372,6 +372,7 @@ public class MainActivity extends AppCompatActivity implements
             Intent broadcastIntent = new Intent(SongService.BROADCAST_ORDER);
             broadcastIntent.putExtra(SongService.BROADCAST_EXTRA_GET_ORDER, SongService.ACTION_PLAY);
             broadcastIntent.putExtra(SongService.BROADCAST_EXTRA_GET_POSITION, position);
+            broadcastIntent.putExtra(SongService.BROADCAST_EXTRA_GET_SONG_POSITION, bookmark.position);
             local.sendBroadcast(broadcastIntent);
         } else {
             Toast.makeText(MainActivity.this, "Position : " + position, Toast.LENGTH_SHORT).show();
@@ -397,13 +398,14 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public boolean onPanelLongCLick() {
-        if(songService.state == SongService.State.paused) {
             Song song = songService.getCurrentSong();
-            final Bookmark bookmark = new Bookmark(song, 1);
+            int songPosition = songService.getCurrentPosition();
+
+            final Bookmark bookmark = new Bookmark(song, songPosition);
             bookmarks.add(bookmark);
             bookmarkAdapter.notifyItemInserted(bookmarks.size()-1);
+
             Toast.makeText(this, "Bookmark Added", Toast.LENGTH_SHORT).show();
-        }
         return true;
     }
 
