@@ -13,7 +13,6 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.IBinder;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.LocalBroadcastManager;
@@ -35,7 +34,6 @@ import com.nononsenseapps.filepicker.FilePickerActivity;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Objects;
 
 import io.paperdb.Paper;
 
@@ -43,7 +41,7 @@ import io.paperdb.Paper;
 public class MainActivity extends AppCompatActivity implements
         PanelFragment.OnPanelClickListener,
         SongAdapter.OnItemClickListener,
-        MenusAdapter.OnItemClickListener, BookmarkAdapter.OnItemClickListener, ServiceConnection{
+        MenusAdapter.OnItemClickListener, SongmarkAdapter.OnItemClickListener, ServiceConnection{
 
     private static final String TAG = "MainActivity";
     private static final String PANEL_FRAGMENT_TAG = "PANEL_FRAGMENT_TAG";
@@ -61,11 +59,11 @@ public class MainActivity extends AppCompatActivity implements
     //Adapters and Finders
     public static SongsFinder finder;
     public static SongAdapter songAdapter;
-    public static BookmarkAdapter bookmarkAdapter;
+    public static SongmarkAdapter songmarkAdapter;
     String songDirecory;
 
-    //Store saved bookmarks
-    ArrayList<Bookmark> bookmarks;
+    //Store saved songmarks
+    ArrayList<Songmark> songmarks;
 
     // Views
     private Toolbar toolbar;
@@ -129,12 +127,12 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     public void setDrawerBookmarksMenu(){
-        bookmarks = Paper.book().read("Bookmarks", new ArrayList<Bookmark>());
+        songmarks = Paper.book().read("Bookmarks", new ArrayList<Songmark>());
 
         bookmarksView = (RecyclerView) findViewById(R.id.bookmarksView);
         bookmarksView.setLayoutManager(new LinearLayoutManager(this));
-        bookmarkAdapter = new BookmarkAdapter(bookmarks, this);
-        bookmarksView.setAdapter(bookmarkAdapter);
+        songmarkAdapter = new SongmarkAdapter(songmarks, this);
+        bookmarksView.setAdapter(songmarkAdapter);
     }
 
     public void setSongsView(){
@@ -332,7 +330,7 @@ public class MainActivity extends AppCompatActivity implements
         unbindService(this);
 
         //Saving Bookmarks before exit
-        Paper.book().write("Bookmarks", bookmarks);
+        Paper.book().write("Bookmarks", songmarks);
 
         super.onStop();
     }
@@ -364,15 +362,15 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onBookmarkItemClick(int itemPosition) {
-        Bookmark bookmark = bookmarks.get(itemPosition);
-        int position  = finder.songs.indexOf(bookmark.song);
+        Songmark songmark = songmarks.get(itemPosition);
+        int position  = finder.songs.indexOf(songmark.song);
 
         if(position != -1) {
             LocalBroadcastManager local = LocalBroadcastManager.getInstance(getApplicationContext());
             Intent broadcastIntent = new Intent(SongService.BROADCAST_ORDER);
             broadcastIntent.putExtra(SongService.BROADCAST_EXTRA_GET_ORDER, SongService.ACTION_PLAY);
             broadcastIntent.putExtra(SongService.BROADCAST_EXTRA_GET_POSITION, position);
-            broadcastIntent.putExtra(SongService.BROADCAST_EXTRA_GET_SONG_POSITION, bookmark.position);
+            broadcastIntent.putExtra(SongService.BROADCAST_EXTRA_GET_SONG_POSITION, songmark.position);
             local.sendBroadcast(broadcastIntent);
         } else {
             Toast.makeText(MainActivity.this, "Position : " + position, Toast.LENGTH_SHORT).show();
@@ -383,8 +381,8 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public boolean onBookmarkItemLongClick(int position) {
-        bookmarks.remove(position);
-        bookmarkAdapter.notifyItemRemoved(position);
+        songmarks.remove(position);
+        songmarkAdapter.notifyItemRemoved(position);
         return true;
     }
 
@@ -401,11 +399,11 @@ public class MainActivity extends AppCompatActivity implements
             Song song = songService.getCurrentSong();
             int songPosition = songService.getCurrentPosition();
 
-            final Bookmark bookmark = new Bookmark(song, songPosition);
-            bookmarks.add(bookmark);
-            bookmarkAdapter.notifyItemInserted(bookmarks.size()-1);
+            final Songmark songmark = new Songmark(song, songPosition);
+            songmarks.add(songmark);
+            songmarkAdapter.notifyItemInserted(songmarks.size()-1);
 
-            Toast.makeText(this, "Bookmark Added", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Songmark Added", Toast.LENGTH_SHORT).show();
         return true;
     }
 

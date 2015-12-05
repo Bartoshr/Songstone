@@ -11,13 +11,13 @@ import java.util.ArrayList;
 /**
  * Created by bartosh on 28.11.2015.
  */
-public class BookmarkAdapter extends RecyclerView.Adapter<BookmarkAdapter.ItemViewHolder> {
+public class SongmarkAdapter extends RecyclerView.Adapter<SongmarkAdapter.ItemViewHolder> {
 
-    private ArrayList<Bookmark> names;
+    private ArrayList<Songmark> names;
 
     OnItemClickListener clickListener;
 
-    public BookmarkAdapter(ArrayList<Bookmark> names, OnItemClickListener clickListener){
+    public SongmarkAdapter(ArrayList<Songmark> names, OnItemClickListener clickListener){
         this.names = names;
         this.clickListener = clickListener;
     }
