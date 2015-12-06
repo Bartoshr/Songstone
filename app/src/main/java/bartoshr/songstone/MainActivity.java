@@ -18,6 +18,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -73,6 +74,8 @@ public class MainActivity extends AppCompatActivity implements
     private RecyclerView optionsView;
     private RecyclerView bookmarksView;
 
+    private SwipeRefreshLayout swipeRefreshLayout;
+
     private DrawerLayout drawerLayout;
 
     //Services
@@ -81,13 +84,17 @@ public class MainActivity extends AppCompatActivity implements
 
     Receiver receiver;
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        Log.i(TAG, "onCreate()");
+
         preferences = getSharedPreferences(PREFERENCES_NAME, AppCompatActivity.MODE_PRIVATE);
-        songDirecory = preferences.getString(PREFERENCES_DIR, /*"/storage/"*/ new File("/storage/sdcard/Music").getPath());
+        songDirecory = preferences.getString(PREFERENCES_DIR, /*"/storage/"*/ new File("/storage/").getPath());
 
 
         Paper.init(this);
@@ -100,14 +107,29 @@ public class MainActivity extends AppCompatActivity implements
         setUpNavDrawer();
 
         emptyView = (TextView) findViewById(R.id.emptyView);
+        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipeRefreshLayout);
+
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                finder.search(songDirecory);
+                songAdapter.changeList(finder.songs);
+                songAdapter.notifyDataSetChanged();
+
+                if(songService != null)
+                songService.setList(finder.songs);
+
+                //notify refreshing is complete
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        });
+        swipeRefreshLayout.setEnabled(true);
 
 
         setSongsView();
         setDrawerOptionsMenu();
         setDrawerBookmarksMenu();
 
-
-        Log.i(TAG, "onCreate()");
         startService();
 
     }
@@ -146,6 +168,8 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     protected void onStart() {
 
+        Log.i(TAG,"onStart");
+
         super.onStart();
         if (finder.songs.isEmpty()) {
             songsView.setVisibility(View.GONE);
@@ -156,16 +180,9 @@ public class MainActivity extends AppCompatActivity implements
             emptyView.setVisibility(View.GONE);
         }
         this.bindService(songIntent, this, Context.BIND_AUTO_CREATE);
+
     }
 
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(SongService.ACTION_REFRESH_VIEW);
-        registerReceiver(receiver, intentFilter);
-    }
 
 
     @Override
@@ -193,7 +210,9 @@ public class MainActivity extends AppCompatActivity implements
 
 
     // Method started when need to change title
-    public void updateView(String title, String artist){
+    public void updatePanel(String title, String artist){
+
+        Log.d(TAG, "UpdatePanel()");
 
         Fragment f = getFragmentManager().findFragmentByTag(PANEL_FRAGMENT_TAG);
 
@@ -206,7 +225,6 @@ public class MainActivity extends AppCompatActivity implements
 
         PanelFragment fragment = (PanelFragment) PanelFragment.instantiate(this, PanelFragment.class.getName());
         fragment.setArguments(bundle);
-
         fragment.setOnPanelClickListener(this);
         fragment.setAnimationChangedListener(new PanelFragment.OnAnimationChanged() {
 
@@ -245,6 +263,9 @@ public class MainActivity extends AppCompatActivity implements
                 finder.search(songDirecory);
                 songAdapter.changeList(finder.songs);
                 songAdapter.notifyDataSetChanged();
+
+                if(songService != null)
+                songService.setList(finder.songs);
 
                 Toast.makeText(this,  "Directory changed :  " + uri.getPath(), Toast.LENGTH_SHORT).show();
         }
@@ -291,7 +312,7 @@ public class MainActivity extends AppCompatActivity implements
         if(currentSong != null) {
             String title = currentSong.getTitle();
             String artist = currentSong.getArtist();
-            updateView(title, artist);
+            updatePanel(title, artist);
         }
 
         songService.musicBound = true;
@@ -300,9 +321,6 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onServiceDisconnected(ComponentName name) {
         Log.i(TAG, "Service Disconected");
-
-        Toast.makeText(this, "Service Disconected", Toast.LENGTH_SHORT).show();
-
         songService.musicBound = false;
     }
 
@@ -314,24 +332,51 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     protected void onPause() {
-
-        Fragment fragment = getFragmentManager().findFragmentByTag(PANEL_FRAGMENT_TAG);
-        getFragmentManager().beginTransaction().setCustomAnimations(R.animator.slide_up,
-                R.animator.slide_down)
-                .remove(fragment).commit();
-
+        Log.i(TAG,"onPause");
+        hidePanel();
         super.onPause();
-
         unregisterReceiver(receiver);
+    }
+
+    @Override
+    protected void onResume() {
+        Log.i(TAG,"onResume");
+
+        super.onResume();
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(SongService.ACTION_REFRESH_VIEW);
+        registerReceiver(receiver, intentFilter);
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+
+        Log.d(TAG, "OnNewIntent()");
+        boolean shoudlUpdatePanel =
+                intent.getBooleanExtra(SongService.NOTIFICATION_MARK, false);
+        
+        Song currentSong = songService.getCurrentSong();
+        if(currentSong != null) {
+            String title = currentSong.getTitle();
+            String artist = currentSong.getArtist();
+            updatePanel(title, artist);
+        }
+
+        super.onNewIntent(intent);
+    }
+
+    public void hidePanel(){
+        Fragment f = getFragmentManager().findFragmentByTag(PANEL_FRAGMENT_TAG);
+        if (f != null) {
+            getFragmentManager().popBackStack();
+        }
     }
 
     @Override
     protected void onStop() {
         unbindService(this);
-
         //Saving Bookmarks before exit
         Paper.book().write("Bookmarks", songmarks);
-
         super.onStop();
     }
 
@@ -412,7 +457,7 @@ public class MainActivity extends AppCompatActivity implements
         public void onReceive(Context context, Intent intent) {
             String title = intent.getStringExtra(SongService.TITLE_KEY);
             String artist = intent.getStringExtra(SongService.ARTIST_KEY);
-            updateView(title, artist);
+            updatePanel(title, artist);
         }
     }
 

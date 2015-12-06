@@ -23,7 +23,6 @@ import android.support.v4.media.session.MediaSessionCompat;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
-import android.widget.Toast;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -71,6 +70,10 @@ public class SongService extends Service
     public static final String ACTION_REFRESH_VIEW = "bartosh.songstone.REFRESH_VIEW";
     public static final String TITLE_KEY = "TITLE_KEY";
     public static final String ARTIST_KEY = "ARTIST_KEY";
+
+    //Marks
+    public static final String NOTIFICATION_MARK="bartoshr.songstone.NOTIFICATION_MARK";
+
 
     // real player
     public static MediaPlayer player = new MediaPlayer();
@@ -347,6 +350,7 @@ public class SongService extends Service
         NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
         Intent notificationIntent = new Intent(this, MainActivity.class);
+        notificationIntent.putExtra(NOTIFICATION_MARK, true);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
 
         Notification notification = new Notification.Builder(this)

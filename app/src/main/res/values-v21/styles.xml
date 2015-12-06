@@ -3,6 +3,9 @@
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.NoActionBar">
 
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorAccent">@color/colorAccent</item>
+
         <!-- Standards setts. -->
         <item name="android:colorPrimary">@color/colorPrimary</item>
         <item name="android:textColorPrimary">@color/textColorPrimary</item>

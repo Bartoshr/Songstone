@@ -38,12 +38,19 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent">
 
-                        <android.support.v7.widget.RecyclerView
-                            android:id="@+id/songsview"
-                            android:scrollbars="vertical"
+                        <android.support.v4.widget.SwipeRefreshLayout
+                            android:id="@+id/swipeRefreshLayout"
                             android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:layout_weight="7"/>
+                            android:layout_height="match_parent">
+
+                            <android.support.v7.widget.RecyclerView
+                                android:id="@+id/songsview"
+                                android:scrollbars="vertical"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:layout_weight="7"/>
+
+                        </android.support.v4.widget.SwipeRefreshLayout>
 
                         <TextView
                             android:id="@+id/emptyView"
@@ -72,7 +79,6 @@
             android:onClick="doNothing"
             android:layout_gravity="start"
             android:background="@color/windowBackground">
-
 
             <android.support.v7.widget.RecyclerView
                 android:layout_marginTop="10dp"

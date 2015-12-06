@@ -34,6 +34,7 @@
     <color name="collectionPressed">#ECEFF1</color>
     <color name="collectionSelected">#FFF3F3F3</color>
     <color name="collectionNormal">#FFF3F3F3</color>
+    <color name="accent_material_dark">#ff7e00</color>
 
 
 </resources>
