@@ -1,0 +1,39 @@
+<resources>
+    <string name="app_name">Songstone</string>
+
+    <string name="action_settings">Settings</string>
+    <string name="default_fragment_panel">Old Man Canyon - Phantoms&amp;Friends</string>
+
+
+    <!-- Notification -->
+    <string name="ticker_text">Ticker text</string>
+    <string name="notification_title">Songstone</string>
+    <string name="notification_message">Songstone message</string>
+
+
+    <!-- Drawer -->
+    <string name="navigation_drawer_open">Drawer Opened</string>
+    <string name="navigation_drawer_close">Drawer Closed</string>
+    <string name="navigation_item_stats">Statistic</string>
+    <string name="navigation_item_sets">Settings</string>
+    <string name="navigation_item_change_path">Change Path</string>
+
+    <!-- Left Drawer List  -->
+    <string-array name="drawer_options_list">
+        <item>@string/navigation_item_stats</item>
+        <item>@string/navigation_item_sets</item>
+        <item>@string/navigation_item_change_path</item>
+    </string-array>
+
+
+<!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="popup_artist">Artist</string>
+    <string name="popup_title">Title</string>
+
+    <string name="button_accept">Accept</string>
+    <string name="button_delete">Delete</string>
+    <string name="button_swap">Swap</string>
+
+</resources>

@@ -1,0 +1,52 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="AppTheme.Base">
+        <!-- Style for reuse in v21 -->
+
+    </style>
+
+    <style name="AppTheme.Base" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:windowBackground">@color/windowBackground</item>
+
+    </style>
+
+    <style name="AppTheme.Toolbar" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="android:textColorPrimary">@color/textColorToolbar</item>
+        <item name="android:textColorSecondary">@color/textColorToolbar</item>
+        <item name="android:actionMenuTextColor">@color/textColorToolbarMenu</item>
+    </style>
+
+
+
+    <!-- Theme for File Picker -->
+
+    <style name="FilePickerTheme" parent="Theme.AppCompat.Light.DialogWhenLarge">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/folderColor</item>
+
+        <item name="alertDialogTheme">@style/FilePickerTheme.Dialog</item>
+
+        <!-- These are important. Handled by toolbar -->
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="colorButtonNormal">@color/folderColor</item>
+
+        <item name="nnf_toolbarTheme">@style/ThemeOverlay.AppCompat.Dark.ActionBar</item>
+    </style>
+
+    <style name="FilePickerTheme.Dialog" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/folderColor</item>
+    </style>
+
+
+
+</resources>

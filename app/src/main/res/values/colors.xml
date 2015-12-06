@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+
+    <!-- Theme colors -->
+
+    <color name="colorPrimary">#222222</color>
+    <color name="colorPrimaryDark">#222222</color>
+    <color name="colorAccent">#FF7E00</color>
+
+    <color name="textColorPrimary">#FFF</color>
+
+    <color name="navigationBarColor">#222222</color>
+    <color name="windowBackground">#FFF3F3F3</color>
+
+    <!-- Drawer -->
+    <color name="folderColor">#999</color>
+    <color name="menuItemColor">#222</color>
+
+
+    <!-- View colors -->
+    <color name="emptyView">#FF5B5B5B</color>
+
+    <!--Panel Color-->
+    <color name="panelBackground">#FF5B5B5B</color>
+    <color name="panelText">#FFFFFF</color>
+
+
+    <!-- Toolbar specific colors -->
+    <color name="textColorToolbar">#FFFFFF</color>
+    <color name="textColorToolbarMenu">#FFFFFF</color>
+
+    <!-- Collection Item Selector colors -->
+    <color name="collectionPressed">#ECEFF1</color>
+    <color name="collectionSelected">#FFF3F3F3</color>
+    <color name="collectionNormal">#FFF3F3F3</color>
+    <color name="accent_material_dark">#ff7e00</color>
+
+
+</resources>

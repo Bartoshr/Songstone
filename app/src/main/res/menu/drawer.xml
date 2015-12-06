@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/navigation_item_stats"
+            android:checked="true"
+            android:icon="@drawable/ic_action_stats"
+            android:title="@string/navigation_item_stats" />
+        <item
+            android:id="@+id/navigation_item_sets"
+            android:icon="@drawable/ic_action_sets"
+            android:title="@string/navigation_item_sets" />
+        <item
+            android:id="@+id/navigation_item_show_path"
+            android:icon="@drawable/ic_action_change_path"
+            android:title="@string/navigation_item_change_path" />
+    </group>
+
+
+</menu>
