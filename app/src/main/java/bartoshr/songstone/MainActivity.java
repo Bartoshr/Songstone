@@ -1,5 +1,6 @@
 package bartoshr.songstone;
 
+import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Fragment;
@@ -10,11 +11,15 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.IBinder;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -45,6 +50,7 @@ public class MainActivity extends AppCompatActivity implements
         MenusAdapter.OnItemClickListener, SongmarkAdapter.OnItemClickListener, ServiceConnection{
 
     private static final String TAG = "MainActivity";
+    private static final int MY_WRITE_EXTERNAL_STORAGE = 1;
     private static final String PANEL_FRAGMENT_TAG = "PANEL_FRAGMENT_TAG";
 
     //Preferences
@@ -86,6 +92,8 @@ public class MainActivity extends AppCompatActivity implements
 
 
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -93,12 +101,14 @@ public class MainActivity extends AppCompatActivity implements
 
         Log.i(TAG, "onCreate()");
 
+
         preferences = getSharedPreferences(PREFERENCES_NAME, AppCompatActivity.MODE_PRIVATE);
-        songDirecory = preferences.getString(PREFERENCES_DIR, /*"/storage/"*/ new File("/storage/").getPath());
+        songDirecory = preferences.getString(PREFERENCES_DIR, /*"/storage/"*/ new File("/storage").getPath());
 
 
         Paper.init(this);
 
+        askForPermissions();
         finder = new SongsFinder(songDirecory);
         receiver = new Receiver();
 
@@ -280,12 +290,10 @@ public class MainActivity extends AppCompatActivity implements
         // Configure initial directory like so
 
         File f = new File(songDirecory);
-        if(f.canWrite()) {
+
             i.putExtra(FilePickerActivity.EXTRA_START_PATH, songDirecory);
             startActivityForResult(i, FILE_CODE);
-        } else {
-            Toast.makeText(this, "Don't have permission", Toast.LENGTH_SHORT).show();
-        }
+
     }
 
     // Shows Popup for editing artist name and  title
@@ -482,9 +490,26 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
+    public void askForPermissions(){
+
+        // Assume thisActivity is the current activity
+        int permissionCheck = ContextCompat.checkSelfPermission(this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE);
+
+            Log.d(TAG, "Permission (WRITE_EXTERNAL_STORAGE) == "+permissionCheck);
+
+            if(permissionCheck == PackageManager.PERMISSION_DENIED) {
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.READ_CONTACTS},
+                        MY_WRITE_EXTERNAL_STORAGE);
+            }
+
+    }
+
     public void doNothing(View v){
         // handle click on DrawerLayout to prevent
         // propagate behind
     }
+
 
 }
