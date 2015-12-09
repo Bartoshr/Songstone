@@ -12,6 +12,7 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -101,10 +102,8 @@ public class MainActivity extends AppCompatActivity implements
 
         Log.i(TAG, "onCreate()");
 
-
         preferences = getSharedPreferences(PREFERENCES_NAME, AppCompatActivity.MODE_PRIVATE);
         songDirecory = preferences.getString(PREFERENCES_DIR, /*"/storage/"*/ new File("/storage").getPath());
-
 
         Paper.init(this);
 
@@ -141,6 +140,7 @@ public class MainActivity extends AppCompatActivity implements
         setDrawerBookmarksMenu();
 
         startService();
+        setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
     }
 
@@ -360,8 +360,8 @@ public class MainActivity extends AppCompatActivity implements
     protected void onNewIntent(Intent intent) {
 
         Log.d(TAG, "OnNewIntent()");
-        boolean shoudlUpdatePanel =
-                intent.getBooleanExtra(SongService.NOTIFICATION_MARK, false);
+//        boolean shoudlUpdatePanel =
+//                intent.getBooleanExtra(SongService.NOTIFICATION_MARK, false);
         
         Song currentSong = songService.getCurrentSong();
         if(currentSong != null) {

@@ -23,6 +23,7 @@ import android.support.v4.media.session.MediaSessionCompat;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -31,9 +32,12 @@ import java.util.ArrayList;
 public class SongService extends Service
         implements  MediaPlayer.OnPreparedListener,
                     MediaPlayer.OnCompletionListener,
-                    MediaPlayer.OnErrorListener {
+                    MediaPlayer.OnErrorListener,
+                    AudioManager.OnAudioFocusChangeListener{
 
     private static final String TAG = "SongService";
+
+
 
     enum State { playing, paused, stopped};
 
@@ -45,7 +49,6 @@ public class SongService extends Service
 
     //Component name of the MusicIntentReceiver.
     ComponentName mediaButtonEventReceiver;
-
 
     // Array of Songs
     public ArrayList<Song> songs = new ArrayList<Song>();
@@ -77,8 +80,10 @@ public class SongService extends Service
 
     // real player
     public static MediaPlayer player = new MediaPlayer();
-
     static final private int ONGOING_NOTIFICATION_ID = 1;
+
+    AudioManager audioManager;
+    int requstResult = AudioManager.AUDIOFOCUS_REQUEST_FAILED;
 
 
     public SongService() {
@@ -95,12 +100,7 @@ public class SongService extends Service
                 .getInstance(getApplicationContext())
                 .registerReceiver(localBroadcastReceiver, new IntentFilter(SongService.BROADCAST_ORDER));
 
-        mediaButtonEventReceiver = new ComponentName(this,
-                ExternalBroadcastReceiver.class.getName());
-
-        mSession = new MediaSessionCompat(getApplicationContext(),"tag",mediaButtonEventReceiver,null);
-        mSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS | MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
-        mSession.setActive(true);
+        requestFocus();
 
         state = State.stopped;
 
@@ -144,6 +144,14 @@ public class SongService extends Service
     // player functions
 
     public void playSong() {
+
+        if (requstResult != AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+            return;
+        }
+
+        mSession = new MediaSessionCompat(getApplicationContext(),"tag",mediaButtonEventReceiver,null);
+        mSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS | MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
+        mSession.setActive(true);
 
         player.reset();
 
@@ -218,6 +226,8 @@ public class SongService extends Service
         player = null;
 
         state = State.stopped;
+
+        audioManager.abandonAudioFocus(this);
     }
 
     public int getNextSong(){
@@ -287,16 +297,24 @@ public class SongService extends Service
                 case TelephonyManager.CALL_STATE_IDLE:
                     if(phoned) {
                         resumePlayer();
+                        Toast.makeText(getApplicationContext(), "CALL_STATE_IDLE", Toast.LENGTH_SHORT).show();
                         phoned = false;
                     }
                     break;
                 case TelephonyManager.CALL_STATE_RINGING:
                     if(player.isPlaying()) {
                         pausePlayer();
+                        Toast.makeText(getApplicationContext(), "CALL_STATE_RINGING", Toast.LENGTH_SHORT).show();
                         phoned = true;
                     }
                     break;
                 case TelephonyManager.CALL_STATE_OFFHOOK:
+                    Toast.makeText(getApplicationContext(), "CALL_STATE_OFFHOOK", Toast.LENGTH_SHORT).show();
+                    if(player.isPlaying()) {
+                        pausePlayer();
+                        Toast.makeText(getApplicationContext(), "CALL_STATE_RINGING", Toast.LENGTH_SHORT).show();
+                        phoned = true;
+                    }
                     break;
             }
             super.onCallStateChanged(state, incomingNumber);
@@ -365,6 +383,30 @@ public class SongService extends Service
 
     void removeForeground(){
         stopForeground(true);
+    }
+
+
+    @Override
+    public void onAudioFocusChange(int focusChange) {
+        if (focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK) {
+            // Lower the volume
+//            Toast.makeText(this, "AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK", Toast.LENGTH_SHORT).show();
+        } else if (focusChange == AudioManager.AUDIOFOCUS_GAIN) {
+            // Raise it back to normal
+//            Toast.makeText(this, "AUDIOFOCUS_GAIN", Toast.LENGTH_SHORT).show();
+        } else if(focusChange == AudioManager.AUDIOFOCUS_LOSS) {
+//            Toast.makeText(this, "AUDIOFOCUS_LOSS", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void requestFocus(){
+        audioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+        mediaButtonEventReceiver = new ComponentName(this,
+                ExternalBroadcastReceiver.class.getName());
+
+        requstResult = audioManager.requestAudioFocus(this,
+                AudioManager.STREAM_MUSIC,
+                AudioManager.AUDIOFOCUS_GAIN);
     }
 
 
