@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
 import android.view.KeyEvent;
+import android.widget.Toast;
 
 /**
  * Created by bartosh on 16.07.15.
@@ -26,6 +27,8 @@ public class ExternalBroadcastReceiver extends BroadcastReceiver {
                 return;
 
             String intentValue = null;
+
+            Toast.makeText(context, "ExternalBroadcastReceiver", Toast.LENGTH_SHORT).show();
 
             switch (keyEvent.getKeyCode()) {
 

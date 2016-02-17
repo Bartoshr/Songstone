@@ -16,7 +16,6 @@ import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.IBinder;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentManager;
@@ -24,13 +23,13 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -81,7 +80,6 @@ public class MainActivity extends AppCompatActivity implements
     private RecyclerView optionsView;
     private RecyclerView bookmarksView;
 
-    private SwipeRefreshLayout swipeRefreshLayout;
 
     private DrawerLayout drawerLayout;
 
@@ -116,24 +114,6 @@ public class MainActivity extends AppCompatActivity implements
         setUpNavDrawer();
 
         emptyView = (TextView) findViewById(R.id.emptyView);
-        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipeRefreshLayout);
-
-        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                finder.search(songDirecory);
-                songAdapter.changeList(finder.songs);
-                songAdapter.notifyDataSetChanged();
-
-                if(songService != null)
-                songService.setList(finder.songs);
-
-                //notify refreshing is complete
-                swipeRefreshLayout.setRefreshing(false);
-            }
-        });
-        swipeRefreshLayout.setEnabled(true);
-
 
         setSongsView();
         setDrawerOptionsMenu();
@@ -235,7 +215,6 @@ public class MainActivity extends AppCompatActivity implements
 
         PanelFragment fragment = (PanelFragment) PanelFragment.instantiate(this, PanelFragment.class.getName());
         fragment.setArguments(bundle);
-        fragment.setOnPanelClickListener(this);
         fragment.setAnimationChangedListener(new PanelFragment.OnAnimationChanged() {
 
             @Override
@@ -288,9 +267,6 @@ public class MainActivity extends AppCompatActivity implements
         i.putExtra(FilePickerActivity.EXTRA_MODE, FilePickerActivity.MODE_DIR);
 
         // Configure initial directory like so
-
-        File f = new File(songDirecory);
-
             i.putExtra(FilePickerActivity.EXTRA_START_PATH, songDirecory);
             startActivityForResult(i, FILE_CODE);
 
@@ -360,14 +336,18 @@ public class MainActivity extends AppCompatActivity implements
     protected void onNewIntent(Intent intent) {
 
         Log.d(TAG, "OnNewIntent()");
-//        boolean shoudlUpdatePanel =
-//                intent.getBooleanExtra(SongService.NOTIFICATION_MARK, false);
-        
-        Song currentSong = songService.getCurrentSong();
-        if(currentSong != null) {
-            String title = currentSong.getTitle();
-            String artist = currentSong.getArtist();
-            updatePanel(title, artist);
+
+        boolean shouldUpdatePanel =
+                intent.getBooleanExtra(SongService.NOTIFICATION_MARK, false);
+
+
+        if(shouldUpdatePanel) {
+            Song currentSong = songService.getCurrentSong();
+            if (currentSong != null) {
+                String title = currentSong.getTitle();
+                String artist = currentSong.getArtist();
+                updatePanel(title, artist);
+            }
         }
 
         super.onNewIntent(intent);
@@ -509,6 +489,37 @@ public class MainActivity extends AppCompatActivity implements
     public void doNothing(View v){
         // handle click on DrawerLayout to prevent
         // propagate behind
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+
+       if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
+           //event.startTracking();
+           //return true;
+       }
+
+        return super.onKeyDown(keyCode, event);
+    }
+
+    @Override
+    public boolean onKeyLongPress(int keyCode, KeyEvent event) {
+
+        if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
+            Toast.makeText(this, "VOLUME UP", Toast.LENGTH_SHORT).show();
+            return true;
+        }
+
+        return super.onKeyLongPress(keyCode, event);
+    }
+
+    public void updateSongs(){
+        finder.search(songDirecory);
+        songAdapter.changeList(finder.songs);
+        songAdapter.notifyDataSetChanged();
+
+        if(songService != null)
+            songService.setList(finder.songs);
     }
 
 

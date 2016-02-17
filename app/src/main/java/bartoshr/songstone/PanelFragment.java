@@ -14,7 +14,6 @@ import android.widget.TextView;
 public class PanelFragment extends Fragment {
 
     public OnAnimationChanged animationChangedListener;
-    public OnPanelClickListener onPanelClickListener;
 
     public PanelFragment() {
         // Required empty public constructor
@@ -44,14 +43,14 @@ public class PanelFragment extends Fragment {
         textView.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                onPanelClickListener.onPanelClick();
+                ((OnPanelClickListener)getActivity()).onPanelClick();
             }
         });
 
         textView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
-                return onPanelClickListener.onPanelLongCLick();
+                return ((OnPanelClickListener)getActivity()).onPanelLongCLick();
             }
         });
 
@@ -98,9 +97,6 @@ public class PanelFragment extends Fragment {
         this.animationChangedListener = animationChangedListener;
     }
 
-    public void setOnPanelClickListener(OnPanelClickListener onPanelClickListener){
-        this.onPanelClickListener = onPanelClickListener;
-    }
 
 
     public interface OnAnimationChanged{

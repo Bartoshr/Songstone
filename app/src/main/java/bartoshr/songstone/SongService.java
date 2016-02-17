@@ -395,7 +395,9 @@ public class SongService extends Service
             // Raise it back to normal
 //            Toast.makeText(this, "AUDIOFOCUS_GAIN", Toast.LENGTH_SHORT).show();
         } else if(focusChange == AudioManager.AUDIOFOCUS_LOSS) {
-//            Toast.makeText(this, "AUDIOFOCUS_LOSS", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "AUDIOFOCUS_LOSS", Toast.LENGTH_SHORT).show();
+//            player.pause();
+            audioManager.abandonAudioFocus(this);
         }
     }
 
