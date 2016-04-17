@@ -6,16 +6,14 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorAccent">@color/colorAccent</item>
 
-         <!--Standards setts. -->
+        <!-- Standards setts. -->
         <item name="android:colorPrimary">@color/colorPrimary</item>
-        <item name="android:textColorPrimary">@color/textColorPrimary</item>
         <item name="android:windowBackground">@color/windowBackground</item>
 
 
         <!-- Android 5.0 spec. -->
         <item name="android:navigationBarColor">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-
 
     </style>
 

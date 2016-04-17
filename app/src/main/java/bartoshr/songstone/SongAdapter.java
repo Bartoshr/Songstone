@@ -58,6 +58,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
                 .rippleHover(true)
                 .create());
 
+//        holder.vTitle.setTextColor(R.color.myblack);
         holder.vTitle.setTypeface(typeface);
         holder.clickListener = clickListener;
 

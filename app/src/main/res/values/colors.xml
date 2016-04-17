@@ -8,7 +8,7 @@
     <color name="colorPrimaryDark">#222222</color>
     <color name="colorAccent">#FF7E00</color>
 
-    <color name="textColorPrimary">#FFF</color>
+    <color name="textColorPrimary">#222222</color>
 
     <color name="navigationBarColor">#222222</color>
     <color name="windowBackground">#FFF3F3F3</color>
@@ -35,6 +35,11 @@
     <color name="collectionSelected">#FFF3F3F3</color>
     <color name="collectionNormal">#FFF3F3F3</color>
     <color name="accent_material_dark">#ff7e00</color>
+
+
+    <!-- Simple colors -->
+    <color name="black">#000000</color>
+
 
 
 </resources>
