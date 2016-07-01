@@ -15,14 +15,19 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.app.Service;
 import android.content.Intent;
+import android.media.session.MediaSession;
+import android.media.session.PlaybackState;
 import android.os.Binder;
 import android.os.IBinder;
 import android.os.PowerManager;
+import android.provider.Settings;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.media.session.MediaSessionCompat;
+import android.support.v4.media.session.PlaybackStateCompat;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.widget.Toast;
 
 import java.io.IOException;
@@ -37,18 +42,17 @@ public class SongService extends Service
 
     private static final String TAG = "SongService";
 
-
-
     enum State { playing, paused, stopped};
 
     // Inidicate player status
     State state;
 
     //Allows interaction with media buttons
-    MediaSessionCompat mSession;
+    MediaSession mSession;
 
     //Component name of the MusicIntentReceiver.
     ComponentName mediaButtonEventReceiver;
+
 
     // Array of Songs
     public ArrayList<Song> songs = new ArrayList<Song>();
@@ -101,12 +105,12 @@ public class SongService extends Service
                 .registerReceiver(localBroadcastReceiver, new IntentFilter(SongService.BROADCAST_ORDER));
 
         requestFocus();
+        setMediaSession();
 
         state = State.stopped;
 
         TelephonyManager manager = (TelephonyManager) this.getSystemService(Context.TELEPHONY_SERVICE);
         manager.listen(phoneStateListener, PhoneStateListener.LISTEN_CALL_STATE);
-
     }
 
 
@@ -118,6 +122,7 @@ public class SongService extends Service
 
     @Override
     public void onDestroy() {
+        mSession.release();
         super.onDestroy();
     }
 
@@ -148,10 +153,6 @@ public class SongService extends Service
         if (requstResult != AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
             return;
         }
-
-        mSession = new MediaSessionCompat(getApplicationContext(),"tag",mediaButtonEventReceiver,null);
-        mSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS | MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
-        mSession.setActive(true);
 
         player.reset();
 
@@ -286,7 +287,6 @@ public class SongService extends Service
         }
     };
 
-
     private final PhoneStateListener phoneStateListener = new PhoneStateListener() {
 
         boolean phoned = false;
@@ -395,7 +395,7 @@ public class SongService extends Service
             // Raise it back to normal
 //            Toast.makeText(this, "AUDIOFOCUS_GAIN", Toast.LENGTH_SHORT).show();
         } else if(focusChange == AudioManager.AUDIOFOCUS_LOSS) {
-            Toast.makeText(this, "AUDIOFOCUS_LOSS", Toast.LENGTH_SHORT).show();
+           // Toast.makeText(this, "AUDIOFOCUS_LOSS", Toast.LENGTH_SHORT).show();
 //            player.pause();
             audioManager.abandonAudioFocus(this);
         }
@@ -403,12 +403,55 @@ public class SongService extends Service
 
     private void requestFocus(){
         audioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
-        mediaButtonEventReceiver = new ComponentName(this,
-                ExternalBroadcastReceiver.class.getName());
-
         requstResult = audioManager.requestAudioFocus(this,
                 AudioManager.STREAM_MUSIC,
                 AudioManager.AUDIOFOCUS_GAIN);
+    }
+
+    private void setMediaSession(){
+        mSession = new MediaSession(getApplicationContext(), "tag");
+
+        if (mSession == null) {
+            Log.e(TAG, "initMediaSession: _mediaSession = null");
+            return;
+        }
+
+        mSession.setCallback(new MediaSession.Callback() {
+            @Override
+            public boolean onMediaButtonEvent(Intent mediaButtonIntent) {
+                KeyEvent keyEvent = (KeyEvent) mediaButtonIntent.getExtras().get(Intent.EXTRA_KEY_EVENT);
+
+                int keycode = keyEvent.getKeyCode();
+
+                if (keyEvent.getAction() != KeyEvent.ACTION_UP) {
+                    switch (keycode) {
+                        case KeyEvent.KEYCODE_MEDIA_NEXT:
+                            playNextSong();
+                            break;
+                        case KeyEvent.KEYCODE_MEDIA_PREVIOUS:
+                            playPrevSong();
+                            break;
+                        case KeyEvent.KEYCODE_MEDIA_PLAY:
+                        case KeyEvent.KEYCODE_MEDIA_PAUSE:
+                        case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
+                            togglePlayer();
+                            break;
+                    }
+                    Log.v("Songstone", keyEvent.toString());
+                }
+                return false;
+            }
+        });
+
+        mSession.setFlags(MediaSession.FLAG_HANDLES_MEDIA_BUTTONS | MediaSession.FLAG_HANDLES_TRANSPORT_CONTROLS);
+
+        PlaybackState state = new PlaybackState.Builder()
+                .setActions(PlaybackState.ACTION_PLAY)
+                .setState(PlaybackState.STATE_STOPPED, PlaybackState.PLAYBACK_POSITION_UNKNOWN, 0)
+                .build();
+
+        mSession.setPlaybackState(state);
+        mSession.setActive(true);
     }
 
 

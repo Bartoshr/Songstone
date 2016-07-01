@@ -69,7 +69,8 @@ public class SongsFinder {
                 @Override
                 public boolean accept(File file) {
                     return file.isFile() && !file.getName().startsWith(".") &&
-                            (file.getName().endsWith("mp3") || file.getName().endsWith("MP3") || file.getName().endsWith("wav"));
+                            (file.getName().endsWith("mp3") || file.getName().endsWith("MP3")
+                                    || file.getName().endsWith("wav") || file.getName().endsWith("m4a"));
                 }
             });
 
