@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="61dp"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".PanelFragment"
+    tools:context=".fragments.PanelFragment"
     android:clickable="true"
     android:orientation="vertical"
     android:layout_gravity="bottom">

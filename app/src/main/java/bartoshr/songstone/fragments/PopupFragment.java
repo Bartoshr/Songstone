@@ -1,4 +1,4 @@
-package bartoshr.songstone;
+package bartoshr.songstone.fragments;
 
 import android.app.Dialog;
 import android.os.Bundle;
@@ -13,6 +13,10 @@ import android.widget.ImageButton;
 import android.widget.Toast;
 
 import java.io.File;
+
+import bartoshr.songstone.R;
+import bartoshr.songstone.model.Song;
+import bartoshr.songstone.activities.MainActivity;
 
 
 public class PopupFragment extends DialogFragment {

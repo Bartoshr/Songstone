@@ -20,7 +20,7 @@
         android:label="@string/app_name">
 
         <activity
-            android:name=".MainActivity"
+            android:name=".activities.MainActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
             android:launchMode="singleTop">
@@ -40,7 +40,7 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".SongService" />
+        <service android:name=".services.SongService" />
 
     </application>
 

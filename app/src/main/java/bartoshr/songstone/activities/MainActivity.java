@@ -1,4 +1,4 @@
-package bartoshr.songstone;
+package bartoshr.songstone.activities;
 
 import android.Manifest;
 import android.annotation.TargetApi;
@@ -41,6 +41,17 @@ import com.nononsenseapps.filepicker.FilePickerActivity;
 import java.io.File;
 import java.util.ArrayList;
 
+import bartoshr.songstone.adapters.MenusAdapter;
+import bartoshr.songstone.fragments.PanelFragment;
+import bartoshr.songstone.fragments.PopupFragment;
+import bartoshr.songstone.R;
+import bartoshr.songstone.model.Song;
+import bartoshr.songstone.adapters.SongAdapter;
+import bartoshr.songstone.services.SongService;
+import bartoshr.songstone.model.Songmark;
+import bartoshr.songstone.adapters.SongmarkAdapter;
+import bartoshr.songstone.utils.SongsFinder;
+import bartoshr.songstone.utils.Utils;
 import io.paperdb.Paper;
 
 

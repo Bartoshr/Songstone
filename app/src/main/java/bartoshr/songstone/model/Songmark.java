@@ -1,4 +1,6 @@
-package bartoshr.songstone;
+package bartoshr.songstone.model;
+
+import bartoshr.songstone.model.Song;
 
 /**
  * Created by bartosh on 28.11.2015.

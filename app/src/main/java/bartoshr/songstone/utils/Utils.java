@@ -1,4 +1,4 @@
-package bartoshr.songstone;
+package bartoshr.songstone.utils;
 
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;

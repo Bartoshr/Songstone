@@ -1,4 +1,4 @@
-package bartoshr.songstone;
+package bartoshr.songstone.model;
 
 public class Song {
 

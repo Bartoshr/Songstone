@@ -1,4 +1,4 @@
-package bartoshr.songstone;
+package bartoshr.songstone.utils;
 
 import android.util.Log;
 
@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+
+import bartoshr.songstone.model.Song;
 
 
 public class SongsFinder {

@@ -1,4 +1,4 @@
-package bartoshr.songstone;
+package bartoshr.songstone.services;
 
 /**
  * Created by bartosh on 28.05.15.
@@ -20,10 +20,7 @@ import android.media.session.PlaybackState;
 import android.os.Binder;
 import android.os.IBinder;
 import android.os.PowerManager;
-import android.provider.Settings;
 import android.support.v4.content.LocalBroadcastManager;
-import android.support.v4.media.session.MediaSessionCompat;
-import android.support.v4.media.session.PlaybackStateCompat;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
@@ -32,6 +29,10 @@ import android.widget.Toast;
 
 import java.io.IOException;
 import java.util.ArrayList;
+
+import bartoshr.songstone.R;
+import bartoshr.songstone.model.Song;
+import bartoshr.songstone.activities.MainActivity;
 
 
 public class SongService extends Service

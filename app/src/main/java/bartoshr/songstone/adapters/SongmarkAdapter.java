@@ -1,4 +1,4 @@
-package bartoshr.songstone;
+package bartoshr.songstone.adapters;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -7,6 +7,10 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+
+import bartoshr.songstone.R;
+import bartoshr.songstone.model.Song;
+import bartoshr.songstone.model.Songmark;
 
 /**
  * Created by bartosh on 28.11.2015.

@@ -1,4 +1,4 @@
-package bartoshr.songstone;
+package bartoshr.songstone.adapters;
 
 /**
  * Created by bartosh on 27.11.2015.
@@ -9,6 +9,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import bartoshr.songstone.R;
 
 public class MenusAdapter extends  RecyclerView.Adapter<MenusAdapter.ItemViewHolder> {
 
